@@ -59,7 +59,7 @@ class PaymentController
 
         $secretKey = $client_id . ":" . $signature;
         $httpHeaders = array('headers' => array('Content-Type' => 'application/json', 'Authorization' => $secretKey));
-        $client = new \GuzzleHttp\Client();
+        $client = new Client();
         $request = new Request('POST', $endpointUrl, $httpHeaders, $payload);
         $promise = $client->sendAsync($request);
 
