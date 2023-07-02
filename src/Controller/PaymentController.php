@@ -4,6 +4,8 @@ namespace Src\Controller;
 
 use Src\Gateway\OrchardPaymentGateway;
 use Src\Controller\VoucherPurchase;
+use GuzzleHttp\Client;
+use GuzzleHttp\Psr7\Request;
 
 class PaymentController
 {
@@ -49,32 +51,33 @@ class PaymentController
         return array("success" => true, "message" => "Invalid transaction ID");
     }
 
-    /**
-     * @param int transaction_id //transaction_id
-     */
-    private function getTransactionStatusFromOrchard(int $transaction_id)
+    public function setOrchardPaymentGatewayParams($payload, $endpointUrl)
     {
-        $service_id = getenv('ORCHARD_SERVID');
-
-        $payload = json_encode(array(
-            "exttrid" => $transaction_id,
-            "trans_type" => "TSC",
-            "service_id" => $service_id
-        ));
-
         $client_id = getenv('ORCHARD_CLIENT');
         $client_secret = getenv('ORCHARD_SECRET');
         $signature = hash_hmac("sha256", $payload, $client_secret);
 
         $secretKey = $client_id . ":" . $signature;
-        $payUrl = "https://orchard-api.anmgw.com/checkTransaction";
-        $request_verb = 'POST';
-        try {
-            $pay = new OrchardPaymentGateway($secretKey, $payUrl, $request_verb, $payload);
-            return $pay->initiatePayment();
-        } catch (\Exception $e) {
-            throw $e;
-        }
+        $httpHeaders = array('headers' => array('Content-Type' => 'application/json', 'Authorization' => $secretKey));
+        $client = new \GuzzleHttp\Client();
+        $request = new Request('POST', $endpointUrl, $httpHeaders, $payload);
+        $promise = $client->sendAsync($request);
+
+        return $promise;
+    }
+
+    /**
+     * @param int transaction_id //transaction_id
+     */
+    private function getTransactionStatusFromOrchard(int $transaction_id)
+    {
+        $payload = json_encode(array(
+            "exttrid" => $transaction_id,
+            "trans_type" => "TSC",
+            "service_id" => getenv('ORCHARD_SERVID')
+        ));
+        $endpointUrl = "https://orchard-api.anmgw.com/checkTransaction";
+        return $this->setOrchardPaymentGatewayParams($payload, $endpointUrl);
     }
 
     public function processTransaction(int $transaction_id)
@@ -108,36 +111,24 @@ class PaymentController
     {
         if (!empty($data)) {
 
-            $callback_url = "https://forms.rmuictonline.com/confirm.php";
-            $landing_page = "https://forms.rmuictonline.com/step-final.php";
             $trans_id = time();
-            $service_id = getenv('ORCHARD_SERVID');
-
             $payload = json_encode(array(
                 "amount" => $data["amount"],
-                "callback_url" => $callback_url,
+                "callback_url" => "https://forms.rmuictonline.com/confirm.php",
                 "exttrid" => $trans_id,
                 "reference" => "RMU Forms Online",
-                "service_id" => $service_id,
+                "service_id" => getenv('ORCHARD_SERVID'),
                 "trans_type" => "CTM",
                 "nickname" => "RMU",
-                "landing_page" => $landing_page,
+                "landing_page" => "https://forms.rmuictonline.com/step-final.php",
                 "ts" => date("Y-m-d H:i:s"),
                 "payment_mode" => $data["pay_method"],
                 "currency_code" => "GHS",
                 "currency_val" => $data["amount"]
             ));
 
-            $client_id = getenv('ORCHARD_CLIENT');
-            $client_secret = getenv('ORCHARD_SECRET');
-            $signature = hash_hmac("sha256", $payload, $client_secret);
-
-            $secretKey = $client_id . ":" . $signature;
-            $request_verb = 'POST';
-            $payUrl = "https://payments.anmgw.com/third_party_request";
-
-            $pay = new OrchardPaymentGateway($secretKey, $payUrl, $request_verb, $payload);
-            $response = json_decode($pay->initiatePayment());
+            $endpointUrl = "https://payments.anmgw.com/third_party_request";
+            $response = json_decode($this->setOrchardPaymentGatewayParams($payload, $endpointUrl));
 
             if ($response->resp_code == "000" && $response->resp_desc == "Passed") {
                 //save Data to database
