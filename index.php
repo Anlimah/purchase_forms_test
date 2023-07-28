@@ -20,7 +20,7 @@
             <div class="flex-column align-items-center">
                 <h1 style="text-align: center;">RMU Form Online</h1>
                 <p>Buy your forms online. Choose to pay with mobile money on all networks or card.</p>
-                <a href="step1.php" class="btn btn-outline-primary" style="padding: 15px; width: 150px !important; text-decoration: none !important;">Buy Now</a>
+                <a href="buy.php" class="btn btn-outline-primary" style="padding: 15px; width: 150px !important; text-decoration: none !important;">Buy Now</a>
             </div>
         </main>
 
