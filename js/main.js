@@ -1,18 +1,20 @@
 function flashMessage(bg_color, message) {
     const flashMessage = document.getElementById("flashMessage");
-
+    flashMessage.classList.remove(...flashMessage.classList);
+    flashMessage.classList.add("text-center");
+    flashMessage.classList.add("alert");
     flashMessage.classList.add(bg_color);
     flashMessage.innerHTML = message;
 
     setTimeout(() => {
-        flashMessage.style.visibility = "visible";
+        flashMessage.style.display = "block";
         flashMessage.classList.add("show");
     }, 500);
 
     setTimeout(() => {
         flashMessage.classList.remove("show");
         setTimeout(() => {
-            flashMessage.style.visibility = "hidden";
+            flashMessage.style.display = "none";
         }, 500);
     }, 5000);
 }
