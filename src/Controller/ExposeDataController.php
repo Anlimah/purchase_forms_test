@@ -313,12 +313,12 @@ class ExposeDataController
 
         $subject = 'RMU Forms Online Verification Code';
         $message = "Hi,";
-        $message .= "<p>This is your verification code <b style='font-size: 24px'>" . $v_code . ".</b></p>";
+        $message .= "<p>This is your verification code <b style='font-size: 20px'>" . $v_code . ".</b></p>";
         $message .= "<p>Codes expires after 30 minutes.</p>";
-        $message .= "<br><p>Thank you.</p>";
+        $message .= "<p>Thank you.</p>";
 
         $response = $this->sendEmail($email, $subject, $message);
-        if (!$response) return $response;
+        if (!$response["success"]) return $response;
         $response["otp_code"] = $v_code;
         return $response;
     }

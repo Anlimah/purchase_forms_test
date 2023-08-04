@@ -84,14 +84,14 @@ if (!isset($_SESSION["_purchaseToken"])) {
                                     <p class="form-label">How do you want to receive voucher details?</p>
                                     <div id="displayVerified" style="display: <?= (isset($_SESSION["verification"]["vStatus"]) && $_SESSION["verification"]["vStatus"] == "success") ? "block" : "none" ?>">
                                         <div class="flex-row justify-space-between">
-                                            <p id="displayVerifiedContent">
-                                                <b class='text-success'>
+                                            <b class='text-success'>
+                                                <p id="displayVerifiedContent">
                                                     <?php
                                                     if (isset($_SESSION["verification"]["type"]) && $_SESSION["verification"]["type"] == "sms") echo "(" . $_SESSION["verification"]["data"]["country_code"] . ") " . $_SESSION["verification"]["data"]["phone_number"] . " verified.";
                                                     elseif (isset($_SESSION["verification"]["type"]) && $_SESSION["verification"]["type"] == "email") echo $_SESSION["verification"]["data"]["email_address"] . " verified.";
                                                     ?>
-                                                </b>
-                                            </p>
+                                                </p>
+                                            </b>
                                             <span id="changeVerification" class="text-danger" style="text-decoration: underline; cursor: pointer;"><b>Change</b></span>
                                         </div>
                                     </div>
