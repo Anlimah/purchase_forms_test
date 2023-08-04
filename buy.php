@@ -337,7 +337,6 @@ if (!isset($_SESSION["_purchaseToken"])) {
                             $("#smsCodeVerifyBoxCode").slideUp();
                             $("#smsSuccessVerificationMessage").fadeIn(1000);
                             $("#displayVerified").slideDown();
-                            alert($("#country_code").val());
                             $("#displayVerifiedContent").html("<b class='text-success'>(" + <?= isset($_SESSION["verification"]["data"]["country_code"]) ? $_SESSION["verification"]["data"]["country_code"] : "" ?> + ") " + <?= isset($_SESSION["verification"]["data"]["phone_number"]) ? $_SESSION["verification"]["data"]["phone_number"] : "" ?> + " verified.</b>");
                             $("#verificationTypeSelect").slideDown();
                         } else {
