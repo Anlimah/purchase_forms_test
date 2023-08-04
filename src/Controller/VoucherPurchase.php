@@ -181,13 +181,12 @@ class VoucherPurchase
         $am = $data['amount'];
         $fi = $data['form_id'];
         $vd = $data['vendor_id'];
+        $ap_id = $data['admin_period'];
 
         if ($data['pay_method'] == 'MOM') $pay_method = "MOMO";
         else if ($data['pay_method'] == 'CRD') $pay_method = "CARD";
         else $pay_method = $data['pay_method'];
         $pm = $pay_method;
-
-        $ap_id = $data['admin_period'];
         //$ft_id = $this->getFormTypeID($ft);
 
         $purchase_id = $this->saveVendorPurchaseData($trans_id, $vd, $fi, $ap_id, $pm, $am, $fn, $ln, $em, $cn, $cc, $pn);
