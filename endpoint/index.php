@@ -58,14 +58,14 @@ elseif ($_SERVER['REQUEST_METHOD'] == "POST") {
 
         $email_address = $expose->validateEmail($_POST["email-address"]);
         $response = $expose->sendEmailVerificationCode($email_address);
-        if (!isset($response["otp_code"])) die(json_encode(array("success" => false, "message" => $response["message"])));
+        if (!$response["success"]) die(json_encode($response));
 
         $_SESSION["verification"]["type"] = "email";
         $_SESSION["verification"]["data"] = array("email_address" => $email_address);
         $_SESSION["verification"]['email_code'] = $response["otp_code"];
         $_SESSION["verification"]['sentStatus'] = true;
 
-        die(json_encode(array("success" => true, "message" => "Code successfully sent to your phone number!")));
+        die(json_encode(array("success" => true, "message" => "Code successfully sent to your email!")));
     }
     //
     elseif ($_GET["url"] == "verifyStep3") {
@@ -233,7 +233,7 @@ elseif ($_SERVER['REQUEST_METHOD'] == "POST") {
             case 'email':
                 $response = $expose->sendEmailVerificationCode($_SESSION["verification"]["data"]["email_address"]);
 
-                if (!isset($response["otp_code"])) {
+                if (!$response["success"]) {
                     $_SESSION["verification"]['email_code'] = "";
                     $_SESSION["verification"]['sentStatus'] = false;
                     $data["success"] = false;
