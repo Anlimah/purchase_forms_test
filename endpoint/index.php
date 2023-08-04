@@ -56,7 +56,7 @@ elseif ($_SERVER['REQUEST_METHOD'] == "POST") {
         if (!isset($_POST["email-address"]) || empty($_POST["email-address"]))
             die(json_encode(array("success" => false, "message" => "Email address is required!")));
 
-        $email_address = $expose->validateEmail($_POST["email_address"]);
+        $email_address = $expose->validateEmail($_POST["email-address"]);
         $v_code = $expose->genCode(6);
 
         $subject = 'VERIFICATION CODE';
