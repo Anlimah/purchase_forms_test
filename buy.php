@@ -408,7 +408,7 @@ if (!isset($_SESSION["_purchaseToken"])) {
                             $("#emailCodeVerifyBoxCode").slideUp();
                             $("#emailSuccessVerificationMessage").fadeIn(1000);
                             $("#displayVerified").slideDown();
-                            $("#displayVerifiedContent").html(<?= isset($_SESSION["verification"]["data"]["email_address"]) ? $_SESSION["verification"]["data"]["email_address"] . " verified." : "" ?>);
+                            $("#displayVerifiedContent").html(result.vData + " verified.");
                             $("#verificationTypeSelect").slideDown();
                         } else {
                             flashMessage("email-message", "alert-danger", result.message);
