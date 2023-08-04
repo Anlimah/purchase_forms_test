@@ -84,7 +84,14 @@ if (!isset($_SESSION["_purchaseToken"])) {
                                     <p class="form-label">How do you want to receive voucher details?</p>
                                     <div id="displayVerified" style="display: <?= (isset($_SESSION["verification"]["vStatus"]) && $_SESSION["verification"]["vStatus"] == "success") ? "block" : "none" ?>">
                                         <div class="flex-row justify-space-between">
-                                            <p class='text-success'><b id="displayVerifiedContent"></b></p>
+                                            <p class='text-success'>
+                                                <b id="displayVerifiedContent">
+                                                    <?php
+                                                    if (isset($_SESSION["verification"]["type"]) && $_SESSION["verification"]["type"] == "sms") echo "(" . $_SESSION["verification"]["data"]["country_code"] . ") " . $_SESSION["verification"]["data"]["phone_number"] . " verified.";
+                                                    elseif (isset($_SESSION["verification"]["type"]) && $_SESSION["verification"]["type"] == "email") echo $_SESSION["verification"]["data"]["email_address"] . " verified.";
+                                                    ?>
+                                                </b>
+                                            </p>
                                             <span id="changeVerification" class="text-danger" style="text-decoration: underline; cursor: pointer;"><b>Change</b></span>
                                         </div>
                                     </div>
@@ -101,10 +108,7 @@ if (!isset($_SESSION["_purchaseToken"])) {
                                 <input type="hidden" name="form-price" id="form-price" value="0">
                                 <input type="hidden" name="form-type" id="form-type" value="0">
                                 <input type="hidden" name="_vPToken" value="<?= $_SESSION["_purchaseToken"]; ?>">
-                                <input type="hidden" name="verifiedAccount" id="verifiedAccount" value="<?php
-                                                                                                        if (isset($_SESSION["verification"]["type"]) && $_SESSION["verification"]["type"] == "sms") echo "(" . $_SESSION["verification"]["data"]["country_code"] . ") " . $_SESSION["verification"]["data"]["phone_number"] . " verified.";
-                                                                                                        elseif (isset($_SESSION["verification"]["type"]) && $_SESSION["verification"]["type"] == "email") echo $_SESSION["verification"]["data"]["email_address"] . " verified.";
-                                                                                                        ?>">
+
                                 <button class="btn btn-primary" type="submit" id="submitBtn" style="width:100%" disabled>Pay</button>
 
                             </div>
@@ -339,7 +343,7 @@ if (!isset($_SESSION["_purchaseToken"])) {
                             $("#smsSuccessVerificationMessage").fadeIn(1000);
                             $("#displayVerified").slideDown();
                             $("#displayVerifiedContent").html(result.vData + " verified.");
-                            $("#verificationTypeSelect").slideDown();
+                            $("#verificationTypeSelect").slideToggle();
                         } else {
                             flashMessage("sms-message", "alert-danger", result.message);
                             $("#submitBtn").prop("disabled", true);
@@ -409,7 +413,7 @@ if (!isset($_SESSION["_purchaseToken"])) {
                             $("#emailSuccessVerificationMessage").fadeIn(1000);
                             $("#displayVerified").slideDown();
                             $("#displayVerifiedContent").html(result.vData + " verified.");
-                            $("#verificationTypeSelect").slideDown();
+                            $("#verificationTypeSelect").slideToggle();
                         } else {
                             flashMessage("email-message", "alert-danger", result.message);
                             $("#submitBtn").prop("disabled", true);
