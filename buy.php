@@ -109,7 +109,7 @@ if (!isset($_SESSION["_purchaseToken"])) {
                                 <input type="hidden" name="form-type" id="form-type" value="0">
                                 <input type="hidden" name="_vPToken" value="<?= $_SESSION["_purchaseToken"]; ?>">
 
-                                <button class="btn btn-primary" type="submit" id="submitBtn" style="width:100%" disabled>Pay</button>
+                                <button class="btn btn-primary" type="submit" id="submitBtn" style="width:100%" <?= (isset($_SESSION["verification"]["vStatus"]) && $_SESSION["verification"]["vStatus"] == "success") ? "" : "disabled" ?>>Pay</button>
 
                             </div>
                         </form>
@@ -273,8 +273,8 @@ if (!isset($_SESSION["_purchaseToken"])) {
                             $("#form-cost-display").slideDown();
                             $("#form-name").text(result.message[0]["name"]);
                             $("#form-cost").text(result.message[0]["amount"]);
-                            $("#form_price").val(result.message[0]["amount"]);
-                            $("#form_type").val(result.message[0]["form_category"]);
+                            $("#form-price").val(result.message[0]["amount"]);
+                            $("#form-type").val(result.message[0]["id"]);
                         }
                     },
                     error: function(error) {
@@ -483,24 +483,21 @@ if (!isset($_SESSION["_purchaseToken"])) {
                 });
             });
 
-            $("#step1Form").on("submit", function(e) {
+            $("#purchaseForm").on("submit", function(e) {
                 e.preventDefault();
                 triggeredBy = 6;
 
                 $.ajax({
                     type: "POST",
-                    url: "endpoint/verifyStep1",
+                    url: "endpoint/purchaseForm",
                     data: new FormData(this),
                     contentType: false,
                     cache: false,
                     processData: false,
                     success: function(result) {
                         console.log(result);
-                        if (result.success) {
-                            window.location.href = result.message;
-                        } else {
-                            flashMessage("alert-danger", result.message);
-                        }
+                        if (result.success) window.location.href = result.message;
+                        else flashMessage("flashMessage", "alert-danger", result.message);
                     },
                     error: function(error) {
                         console.log(error.statusText);

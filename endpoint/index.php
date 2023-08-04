@@ -151,60 +151,47 @@ elseif ($_SERVER['REQUEST_METHOD'] == "POST") {
 
     // verify step 6
     elseif ($_GET["url"] == "purchaseForm") {
-        if (isset($_SESSION["_purchaseToken"]) && !empty($_SESSION["_purchaseToken"]) && isset($_POST["_vPToken"]) && !empty($_POST["_vPToken"]) && $_POST["_vPToken"] == $_SESSION["_purchaseToken"]) {
+        if (!isset($_SESSION["_purchaseToken"]) || empty($_SESSION["_purchaseToken"]) || !isset($_POST["_vPToken"]) || empty($_POST["_vPToken"]) || $_POST["_vPToken"] != $_SESSION["_purchaseToken"])
+            die(json_encode(array("success" => false, "message" => "Invalid request! Failed to process your request.")));
 
-            if (!isset($_POST["first-name"]) || empty($_POST["first-name"])) die(json_encode(array()));
-            if (!isset($_POST["last-name"]) || empty($_POST["last-name"])) die(json_encode(array()));
-            if (!isset($_POST["available-forms"]) || empty($_POST["available-forms"])) die(json_encode(array()));
-            if (!isset($_POST["form-price"]) || empty($_POST["form-price"])) die(json_encode(array()));
-            if (!isset($_POST["payment-method"]) || empty($_POST["payment-method"])) die(json_encode(array()));
-            if (!isset($_POST["first-name"]) || empty($_POST["first-name"])) die(json_encode(array()));
-            if (!isset($_POST["first-name"]) || empty($_POST["first-name"])) die(json_encode(array()));
+        if (!isset($_POST["first-name"]) || empty($_POST["first-name"]))
+            die(json_encode(array("success" => false, "message" => "First Name required!")));
+        if (!isset($_POST["last-name"]) || empty($_POST["last-name"]))
+            die(json_encode(array("success" => false, "message" => "Last Name required!")));
+        if (!isset($_POST["available-forms"]) || empty($_POST["available-forms"]))
+            die(json_encode(array("success" => false, "message" => "Form type is required!")));
+        if (!isset($_POST["payment-method"]) || empty($_POST["payment-method"]))
+            die(json_encode(array("success" => false, "message" => "Mode of payment required!")));
+        if (!isset($_POST["form-price"]) || empty($_POST["form-price"]))
+            die(json_encode(array("success" => false, "message" => "Choose a form type!")));
 
-            $_SESSION["customerData"]["first_name"]     = $expose->validateInput($_POST["first-name"]);
-            $_SESSION["customerData"]["last_name"]      = $expose->validateInput($_POST["last-name"]);
-            $_SESSION["customerData"]["form_id"]        = $expose->validateInput($_POST["available-forms"]);
-            $_SESSION["customerData"]["amount"]         = $_POST["form-price"];
-            $_SESSION["customerData"]["pay_method"]     = $expose->validateText($_POST["payment-method"]);
-            $_SESSION["customerData"]["vendor_id"]      = $_SESSION["vendor_id"];
-            $_SESSION["customerData"]["admin_period"]   = $_SESSION["admin_period"];
-            $_SESSION["customerData"]["verification"]   = $_SESSION["verification"];
+        $_SESSION["customerData"]["first_name"]     = $expose->validateInput($_POST["first-name"]);
+        $_SESSION["customerData"]["last_name"]      = $expose->validateInput($_POST["last-name"]);
+        $_SESSION["customerData"]["form_id"]        = $expose->validatePhone($_POST["available-forms"]);
+        $_SESSION["customerData"]["amount"]         = $_POST["form-price"];
+        $_SESSION["customerData"]["pay_method"]     = $expose->validateText($_POST["payment-method"]);
+        $_SESSION["customerData"]["vendor_id"]      = $_SESSION["vendor_id"];
+        $_SESSION["customerData"]["admin_period"]   = $expose->getCurrentAdmissionPeriodID();
+        $_SESSION["customerData"]["verification"]   = $_SESSION["verification"];
 
-            if (isset($_SESSION['step1Done']) && isset($_SESSION['step2Done']) && isset($_SESSION['step3Done']) && isset($_SESSION['step4Done']) && isset($_SESSION['step5Done']) && isset($_SESSION['step6Done'])) {
-                if ($_SESSION['step1Done'] == true && $_SESSION['step2Done'] == true && $_SESSION['step3Done'] == true && $_SESSION['step4Done'] == true && $_SESSION['step5Done'] == true && $_SESSION['step6Done'] == true) {
-                    $_SESSION["customerData"] = array(
-                        "email_address" => $_SESSION["step2"]["email_address"],
-                        "country_name" => $_SESSION["step4"]["country_name"],
-                        "country_code" => $_SESSION["step4"]["country_code"],
-                        "phone_number" => $_SESSION["step4"]["phone_number"]
-                    );
-                    $data = $expose->callOrchardGateway($_SESSION["customerData"]);
+        $data = $expose->callOrchardGateway($_SESSION["customerData"]);
 
-                    session_unset();
-                    session_destroy();
-                    $_SESSION = array();
+        /*session_unset();
+        session_destroy();
+        $_SESSION = array();
 
-                    if (ini_get("session.use_cookies")) {
-                        $params = session_get_cookie_params();
-                        setcookie(
-                            session_name(),
-                            '',
-                            time() - 42000,
-                            $params["path"],
-                            $params["domain"],
-                            $params["secure"],
-                            $params["httponly"]
-                        );
-                    }
-                }
-            } else {
-                $data["success"] = false;
-                $data["message"] = "Error occured while processing selected amount!";
-            }
-        } else {
-            $data["success"] = false;
-            $data["message"] = "Invalid request!";
-        }
+        if (ini_get("session.use_cookies")) {
+            $params = session_get_cookie_params();
+            setcookie(
+                session_name(),
+                '',
+                time() - 42000,
+                $params["path"],
+                $params["domain"],
+                $params["secure"],
+                $params["httponly"]
+            );
+        }*/
         die(json_encode($data));
     }
 

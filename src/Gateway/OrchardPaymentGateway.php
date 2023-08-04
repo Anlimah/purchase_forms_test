@@ -50,30 +50,4 @@ class OrchardPaymentGateway
         curl_close($curl);
         return $response;
     }
-
-    public static function destroyAllSessions()
-    {
-        unset($_SESSION['step1']);
-        unset($_SESSION['step2']);
-        unset($_SESSION['step3']);
-        unset($_SESSION['step4']);
-        unset($_SESSION['step5']);
-        unset($_SESSION['step6']);
-        unset($_SESSION['step1Done']);
-        unset($_SESSION['step2Done']);
-        unset($_SESSION['step3Done']);
-        unset($_SESSION['step4Done']);
-        unset($_SESSION['step5Done']);
-        unset($_SESSION['step6Done']);
-        unset($_SESSION['_step1Token']);
-        unset($_SESSION['_step2Token']);
-        unset($_SESSION['_step3Token']);
-        unset($_SESSION['_step4Token']);
-        unset($_SESSION['_step5Token']);
-        unset($_SESSION['_step6Token']);
-
-        session_unset();
-        session_destroy();
-        session_write_close();
-    }
 }
