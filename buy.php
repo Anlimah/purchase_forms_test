@@ -149,13 +149,13 @@ if (!isset($_SESSION["_purchaseToken"])) {
                                 </form>
                             </div>
 
-                            <div id="emailCodeVerifyBoxCode" style="width: 100%; display: none">
+                            <div id="emailCodeVerifyBoxCode" style="width: 100%; display: none;">
                                 <form action="" method="post" id="emailVerificationForm">
                                     <div style="width: 100%; display:flex; flex-direction:column; align-items:center">
                                         <p class="mb-4" style="color:#003262;">A 6 digit code has been sent to your email address. Check your inbox and enter the code</p>
-                                        <div class="mb-4 flex-row" style="width:100%;">
-                                            <input required name="code" id="emailVerificationCode" class="form-control me-2" type="text" maxlength="6" style="text-align:center; flex-grow: 9; margin-right: 5px" placeholder="XXXXXX">
-                                            <button class="btn btn-primary" type="submit" id="verifyEmailBtn" style="padding: 7px 5px; flex-grow: 2;">Verify</button>
+                                        <div class="mb-4 flex-row" style="width:100%; justify-content: center">
+                                            <input required name="code" id="emailVerificationCode" class="form-control" type="text" maxlength="6" style="text-align:center;" placeholder="XXXXXX">
+                                            <span id="emailVerificationCodeLoadArea" style="display: none;"></span>
                                         </div>
                                         <div class="mb-4 flex-row align-items-baseline justify-space-between" style="width: 100%;">
                                             <a href="javascript:void()" id="change-ea">Change email address</a>
@@ -221,12 +221,13 @@ if (!isset($_SESSION["_purchaseToken"])) {
                                 </form>
                             </div>
 
-                            <div id="smsCodeVerifyBoxCode" style="width: 100%; display: none">
+                            <div id="smsCodeVerifyBoxCode" style="width: 100%; display: none;">
                                 <form action="" method="post" id="smsVerificationForm">
                                     <div style="width: 100%; display:flex; flex-direction:column; align-items:center">
                                         <p class="mb-4" style="color:#003262;">A 6 digit code has been sent to your phone number. Check your inbox and enter the code</p>
                                         <div class="mb-4 flex-row" style="width:100%; justify-content: center">
                                             <input required name="code" id="smsVerificationCode" class="form-control" type="text" maxlength="6" style="text-align:center;" placeholder="XXXXXX">
+                                            <span id="smsVerificationCodeLoadArea" style="display: none;"></span>
                                         </div>
                                         <div class="mb-4 flex-row align-items-baseline justify-space-between" style="width: 100%;">
                                             <a href="javascript:void()" id="change-pn">Change number</a>
@@ -359,7 +360,7 @@ if (!isset($_SESSION["_purchaseToken"])) {
 
             $("#emailCodeVerificationFormNumber").on("submit", function(e) {
                 e.preventDefault();
-                triggeredBy = 1;
+                triggeredBy = 3;
 
                 $.ajax({
                     type: "POST",
@@ -390,7 +391,7 @@ if (!isset($_SESSION["_purchaseToken"])) {
 
             $("#emailVerificationForm").on("submit", function(e) {
                 e.preventDefault();
-                triggeredBy = 2;
+                triggeredBy = 4;
 
                 $.ajax({
                     type: "POST",
@@ -439,10 +440,8 @@ if (!isset($_SESSION["_purchaseToken"])) {
             }, 1000); //1000 will  run it every 1 second
 
             $(".resend-code").click(function() {
-                triggeredBy = 3;
-                rtType = "";
-                if (this.dataset.resendType == "sms") rtType = "sms";
-                else if (this.dataset.resendType == "email") rtType = "email";
+                triggeredBy = 5;
+                var rtType = this.dataset.resendtype;
 
                 $.ajax({
                     type: "POST",
@@ -482,7 +481,7 @@ if (!isset($_SESSION["_purchaseToken"])) {
 
             $("#step1Form").on("submit", function(e) {
                 e.preventDefault();
-                triggeredBy = 5;
+                triggeredBy = 6;
 
                 $.ajax({
                     type: "POST",
@@ -507,16 +506,32 @@ if (!isset($_SESSION["_purchaseToken"])) {
 
             $(document).on({
                 ajaxStart: function() {
-                    if (triggeredBy == 1) $("#smsCodeVerificationFormNumber").prop("disabled", true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Sending...');
-                    if (triggeredBy == 2) $("#smsVerificationCode").prop("disabled", true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Verifying...');
-                    if (triggeredBy == 3) $(".resend-code").prop("disabled", true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Sending...');
-                    if (triggeredBy == 4) $("#submitBtn").prop("disabled", true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...');
+                    if (triggeredBy == 1) $("#verifySMSBtn").prop("disabled", true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Sending...');
+                    if (triggeredBy == 2) {
+                        $("#smsVerificationCode").prop("disabled", true);
+                        $("#smsVerificationCodeLoadArea").show().html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>Verifying...');
+                    }
+                    if (triggeredBy == 3) $("#verifyEmailBtn").prop("disabled", true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>Sending...');
+                    if (triggeredBy == 4) {
+                        $("#emailVerificationCode").prop("disabled", true);
+                        $("#emailVerificationCodeLoadArea").html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>Verifying...');
+                    }
+                    if (triggeredBy == 5) $(".resend-code").prop("disabled", true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>Sending...');
+                    if (triggeredBy == 6) $("#submitBtn").prop("disabled", true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>Processing...');
                 },
                 ajaxStop: function() {
-                    if (triggeredBy == 1) $("#smsCodeVerificationFormNumber").prop("disabled", false).html('<span class="bi bi-send" role="status" aria-hidden="true"> Send</span>');
-                    if (triggeredBy == 2) $("#smsVerificationCode").prop("disabled", false);
-                    if (triggeredBy == 3) $(".resend-code").prop("disabled", false).html('Resend code');
-                    if (triggeredBy == 4) $("#submitBtn").prop("disabled", false).html('Pay');
+                    if (triggeredBy == 1) $("#verifySMSBtn").prop("disabled", false).html('Send');
+                    if (triggeredBy == 2) {
+                        $("#smsVerificationCode").prop("disabled", false);
+                        $("#smsVerificationCodeLoadArea").hide().html('');
+                    }
+                    if (triggeredBy == 3) $("#verifyEmailBtn").prop("disabled", false).html('Send');
+                    if (triggeredBy == 4) {
+                        $("#emailVerificationCode").prop("disabled", false);
+                        $("#emailVerificationCodeLoadArea").hide().html('');
+                    }
+                    if (triggeredBy == 5) $(".resend-code").prop("disabled", false).html('Resend code');
+                    if (triggeredBy == 6) $("#submitBtn").prop("disabled", false).html('Pay');
                 }
             });
         });
