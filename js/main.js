@@ -1,5 +1,5 @@
-function flashMessage(bg_color, message) {
-    const flashMessage = document.getElementById("flashMessage");
+function flashMessage(el, bg_color, message) {
+    const flashMessage = document.getElementById(el);
     flashMessage.classList.remove(...flashMessage.classList);
     flashMessage.classList.add("text-center");
     flashMessage.classList.add("alert");

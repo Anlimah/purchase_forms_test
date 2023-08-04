@@ -74,20 +74,33 @@ if (!isset($_SESSION["_purchaseToken"])) {
                                 <div class="mb-4">
                                     <label class="form-label" for="payment-method">Choose the mode for payment</label>
                                     <select title="Choose the mode to pay for the selected form" class="form-select form-select-sm" name="payment-method" id="payment-method" required>
-                                        <option value="" hidden>Choose...</option>
+                                        <option selected disabled value="">Choose...</option>
                                         <option value="CRD">Credit/Debit Card</option>
-                                        <option value="MOM" selected>Mobile Money</option>
+                                        <option value="MOM">Mobile Money</option>
                                     </select>
                                 </div>
 
                                 <div class="mb-4 mt-4">
                                     <p class="form-label">How do you want to receive voucher details?</p>
+                                    <div id="displayVerified" style="display: <?= (isset($_SESSION["verification"]["vStatus"]) && $_SESSION["verification"]["vStatus"] == "success") ? "block" : "none" ?>">
+                                        <div class="flex-row justify-space-between">
+                                            <p id="displayVerifiedContent">
+                                                <?php
+                                                if (isset($_SESSION["verification"]["type"]) && $_SESSION["verification"]["type"] == "sms") echo "<b class='text-success'>(" . $_SESSION["verification"]["data"]["country_code"] . ") " . $_SESSION["verification"]["data"]["phone_number"] . " verified.</b>";
+                                                elseif (isset($_SESSION["verification"]["type"]) && $_SESSION["verification"]["type"] == "email") echo "<b class='text-success'>" . $_SESSION["verification"]["data"]["email_address"] . " verified.</b>";
+                                                ?>
+                                            </p>
+                                            <span id="changeVerification" class="text-danger" style="text-decoration: underline; cursor: pointer;"><b>Change</b></span>
+                                        </div>
+                                    </div>
+                                    <div id="verificationTypeSelect" style="display: <?= (isset($_SESSION["verification"]["vStatus"]) && $_SESSION["verification"]["vStatus"] == "success") ? "none" : "block" ?>;">
+                                        <input type="radio" class="btn-check verificationType" name="verification-type" id="smsVoucher" value="sms" autocomplete="off">
+                                        <label class="btn btn-outline-secondary" for="smsVoucher">SMS</label>
 
-                                    <input type="radio" class="btn-check verificationType" name="verification-type" id="smsVoucher" value="sms" autocomplete="off">
-                                    <label class="btn btn-outline-secondary" for="smsVoucher">SMS</label>
+                                        <input type="radio" class="btn-check verificationType" name="verification-type" id="emailVoucher" value="email" autocomplete="off">
+                                        <label class="btn btn-outline-secondary" for="emailVoucher">Email</label>
+                                    </div>
 
-                                    <input type="radio" class="btn-check verificationType" name="verification-type" id="emailVoucher" value="email" autocomplete="off">
-                                    <label class="btn btn-outline-secondary" for="emailVoucher">Email</label>
                                 </div>
 
                                 <input type="hidden" name="form-price" id="form-price" value="0">
@@ -106,40 +119,51 @@ if (!isset($_SESSION["_purchaseToken"])) {
                 <div class="modal-dialog modal-dialog-centered madal-sm">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h1 class="modal-title fs-5" id="emailVoucherVerificationModalTitle">Purchase Information</h1>
+                            <h1 class="modal-title fs-5" id="emailVoucherVerificationModalTitle">Email Address Verification</h1>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
+                            <div id="email-message"></div>
 
-                            <div class="msg-info" style="width:100%; display: flex; flex-direction:column; align-items:center">
-                                <img id="image" src="assets/images/icons8-success-96.png" alt="successful">
-                                <p id="message">Verification successful</p>
-                            </div>
-
-                            <div id="emailCodeVerifyInputBoxEmail">
-                                <label class="form-label" for="email_addr">Provide your email address</label>
-                                <div class="mb-4" style="display: flex;">
-                                    <div style="flex-grow: 8; margin-right: 5px">
-                                        <input title="Provide your email address" class="form-control" type="email" name="email_address" id="email_address" placeholder="surname@gmail.com" required>
+                            <div id="emailSuccessVerificationMessage" style="width:100%; display: none">
+                                <div style="width:100%; display: flex; flex-direction:column; align-items:center">
+                                    <img id="image" src="assets/images/icons8-success-96.png" alt="successful">
+                                    <div class="purchase-card-header mt-4 mb-2" style="border-bottom: none !important;">
+                                        <h1>Verification successful</h1>
                                     </div>
-                                    <button style="flex-grow: 3;" class="btn btn-primary" type="button" id="verifyEmailBtn">
-                                        <span class="bi bi-send">Send Code</span>
-                                    </button>
+                                    <p><b>Pay</b> button is now active. Close this popover to proceed.</p>
                                 </div>
                             </div>
 
-                            <div id="emailCodeVerifyInputBoxCode" style="display: none;">
-                                <p class="mb-2" style="color:#003262;">
-                                    A 6 digit code has been sent to the provide email address. Check you inbox and enter the code
-                                </p>
-                                <div class="mb-4" style="width:100%; display: flex; flex-direction:row; align-items:baseline; justify-content:space-around">
-                                    <input name="verification-code" class="form-control verification-code" data-verification-code="sms" type="text" maxlength="6" style="text-align:center;" placeholder="XXXXXX" required>
-                                </div>
-                                <div class="purchase-card-footer flex-row align-items-baseline justify-space-between" style="width: 100%;">
-                                    <a href="step2.php">Change email address</a>
-                                    <span class="timer" style="display: none;"></span>
-                                    <button class="resend-code btn btn-outline-dark btn-xs">Resend code</button>
-                                </div>
+                            <div id="emailCodeVerifyBoxNumber" class="mb-4">
+                                <form action="#" method="post" id="emailCodeVerificationFormNumber">
+                                    <p class="mb-4" style="color:#003262;">
+                                        We'll send you a message with a 6 digit code to verify your email address. Please provide your email address.<br>
+                                    </p>
+                                    <div class="mb-4 flex-row">
+                                        <div style="flex-grow: 9; margin-right: 5px">
+                                            <input title="Provide your email address" class="form-control" type="email" name="email_address" id="email_address" placeholder="example@company.com" required>
+                                        </div>
+                                        <button style="flex-grow: 2;" class="btn btn-primary" type="button" id="verifyEmailBtn">Send</button>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <div id="emailCodeVerifyBoxCode" style="width: 100%; display: none">
+                                <form action="" method="post" id="emailVerificationForm">
+                                    <div style="width: 100%; display:flex; flex-direction:column; align-items:center">
+                                        <p class="mb-4" style="color:#003262;">A 6 digit code has been sent to your email address. Check your inbox and enter the code</p>
+                                        <div class="mb-4 flex-row" style="width:100%;">
+                                            <input required name="code" id="emailVerificationCode" class="form-control me-2" type="text" maxlength="6" style="text-align:center; flex-grow: 9; margin-right: 5px" placeholder="XXXXXX">
+                                            <button class="btn btn-primary" type="submit" id="verifyEmailBtn" style="padding: 7px 5px; flex-grow: 2;">Verify</button>
+                                        </div>
+                                        <div class="mb-4 flex-row align-items-baseline justify-space-between" style="width: 100%;">
+                                            <a href="javascript:void()" id="change-ea">Change email address</a>
+                                            <span class="timer" style="display: none;"></span>
+                                            <button class="resend-code btn btn-outline-dark btn-xs">Resend code</button>
+                                        </div>
+                                    </div>
+                                </form>
                             </div>
 
                         </div>
@@ -155,22 +179,26 @@ if (!isset($_SESSION["_purchaseToken"])) {
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
+                            <div id="sms-message"></div>
 
-                            <div class="success-verification" style="width:100%; display: none">
+                            <div id="smsSuccessVerificationMessage" style="width:100%; display: none">
                                 <div style="width:100%; display: flex; flex-direction:column; align-items:center">
                                     <img id="image" src="assets/images/icons8-success-96.png" alt="successful">
-                                    <p id="message">Verification successful</p>
+                                    <div class="purchase-card-header mt-4 mb-2" style="border-bottom: none !important;">
+                                        <h1>Verification successful</h1>
+                                    </div>
+                                    <p><b>Pay</b> button is now active. Close this popover to proceed.</p>
                                 </div>
                             </div>
 
                             <div id="smsCodeVerifyBoxNumber" class="mb-4">
-                                <p class="mb-4" style="color:#003262;">
-                                    We'll send you an OTP message with a code to verify your phone number. Please provide your phone number for verification.<br>
-                                    <span class="text-danger"><b>Note:</b> We don't accept VoIP or Skype numbers.</span>
-                                </p>
-                                <form action="#" method="post" id="smsCodeVerificationFormNumber" style="margin: 0 !important;">
-                                    <div class="mb-2 row">
-                                        <div class="col-md-6 mb-2">
+                                <form action="#" method="post" id="smsCodeVerificationFormNumber">
+                                    <p class="mb-4" style="color:#003262;">
+                                        We'll send you an OTP message with a 6 digit code to verify your phone number. Please provide your phone number.<br>
+                                        <span class="text-danger"><b>Note:</b> We don't accept VoIP or Skype numbers.</span>
+                                    </p>
+                                    <div class="mb-2 flex-row">
+                                        <div class="col-md-6 me-2">
                                             <label class="form-label" for="country-code">Country Code</label>
                                             <select required name="country-code" id="country-code" title="Choose country and country code" class="form-select form-control country-code">
                                                 <option hidden value="">Choose...</option>
@@ -182,32 +210,33 @@ if (!isset($_SESSION["_purchaseToken"])) {
                                                 ?>
                                             </select>
                                         </div>
-                                        <div class="col-md-6  mb-2">
+                                        <div class="col-md-6">
                                             <label class="form-label" for="phone-number">Phone Number</label>
                                             <input required name="phone-number" id="phone-number" maxlength="11" title="Provide your Provide Number" class="form-control" type="tel" placeholder="12345678901">
                                         </div>
-                                        <div class="col-md-12 mb-2 " style="width: 100% !important;">
-                                            <button class="btn btn-primary form-control" type="submit" id="verifySMSBtn">
-                                                <span class="bi bi-send"> Send Code</span>
-                                            </button>
+                                    </div>
+                                    <div class="col-md-12 mb-2 " style="width: 100% !important;">
+                                        <button class="btn btn-primary form-control" type="submit" id="verifySMSBtn">Send</button>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <div id="smsCodeVerifyBoxCode" style="width: 100%; display: none">
+                                <form action="" method="post" id="smsVerificationForm">
+                                    <div style="width: 100%; display:flex; flex-direction:column; align-items:center">
+                                        <p class="mb-4" style="color:#003262;">A 6 digit code has been sent to your phone number. Check your inbox and enter the code</p>
+                                        <div class="mb-4 flex-row" style="width:100%; justify-content: center">
+                                            <input required name="code" id="smsVerificationCode" class="form-control" type="text" maxlength="6" style="text-align:center;" placeholder="XXXXXX">
+                                        </div>
+                                        <div class="mb-4 flex-row align-items-baseline justify-space-between" style="width: 100%;">
+                                            <a href="javascript:void()" id="change-pn">Change number</a>
+                                            <span class="timer" style="display: none;"></span>
+                                            <button class="resend-code btn btn-outline-dark btn-xs">Resend code</button>
                                         </div>
                                     </div>
                                 </form>
                             </div>
 
-                            <div class="mb-4" id="smsCodeVerifyBoxCode" style="width: 100%; display:none;">
-                                <div style="width: 100%; display:flex; flex-direction:column; align-items:center">
-                                    <p class="mb-4">Enter the 6 digits verification code here.</p>
-                                    <div class="mb-4">
-                                        <input required name="verification-code" class="form-control verification-code" type="text" data-verification-code="sms" maxlength="6" style="text-align:center;" placeholder="XXXXXX">
-                                    </div>
-                                    <div class="purchase-card-footer flex-row align-items-baseline justify-space-between" style="width: 100%;">
-                                        <a href="javascript:void()" id="change-pn">Change number</a>
-                                        <span class="timer" style="display: none;" data-timer="sms"></span>
-                                        <button class="resend-code btn btn-outline-dark btn-xs" data-resend-data="sms">Resend code</button>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -226,77 +255,7 @@ if (!isset($_SESSION["_purchaseToken"])) {
 
             var triggeredBy = 0;
 
-            $(".verificationType").on("click", function() {
-                if ($(this).attr("id") == "smsVoucher") $("#smsVoucherInformationModal").modal("toggle");
-                if ($(this).attr("id") == "emailVoucher") $("#emailVoucherVerificationModal").modal("toggle");
-            });
-
-            $("#smsCodeVerificationFormNumber").on("submit", function(e) {
-                e.preventDefault();
-                triggeredBy = 1;
-
-                $.ajax({
-                    type: "POST",
-                    url: "endpoint/verifyStep4",
-                    data: new FormData(this),
-                    contentType: false,
-                    cache: false,
-                    processData: false,
-                    success: function(result) {
-                        console.log(result);
-                        if (result.success) {
-                            $("#smsCodeVerifyBoxNumber").slideUp();
-                            $("#smsCodeVerifyBoxCode").slideDown();
-                            flashMessage("alert-success", result.message);
-                        } else {
-                            flashMessage("alert-danger", result.message);
-                        }
-                    },
-                    error: function(error) {
-                        console.log(error.statusText);
-                    }
-                });
-            });
-
-            $(".verification-code").on("keyup", function(e) {
-                if (this.value.length == 6) {
-                    triggeredBy = 2;
-                    data = {
-                        code: $(this).val()
-                    };
-                    $(".verification-code").prop("disabled", true);
-
-                    $.ajax({
-                        type: "POST",
-                        url: "endpoint/verifyCode",
-                        data: data,
-                        success: function(result) {
-                            console.log(result);
-                            if (result.success) {
-                                flashMessage("alert-success", result.message);
-                                $("#submitBtn").prop("disabled", false);
-                                $(".verification-code").prop("disabled", false).val("");
-                                $(".verification-code").blur();
-                                $("#smsCodeVerifyBoxNumber").slideUp();
-                                $("#smsCodeVerifyBoxCode").slideUp();
-                                $(".success-verification").fadeIn(2000);
-                            } else {
-                                flashMessage("alert-danger", result.message);
-                                $("#submitBtn").prop("disabled", true);
-                                $(".verification-code").prop("disabled", false);
-                                $(".verification-code").focus();
-                            }
-                        },
-                        error: function(error) {
-                            console.log(error.statusText);
-                        }
-                    });
-                    return;
-                }
-            });
-
             $(".form-info").change("blur", function() {
-                triggeredBy = 3;
                 $.ajax({
                     type: "POST",
                     url: "endpoint/formInfo",
@@ -319,10 +278,156 @@ if (!isset($_SESSION["_purchaseToken"])) {
                 });
             });
 
+            $("#changeVerification").on("click", function() {
+                $("#verificationTypeSelect").slideToggle();
+            });
+
+            $(".verificationType").on("click", function() {
+                if ($(this).attr("id") == "smsVoucher") $("#smsVoucherInformationModal").modal("toggle");
+                if ($(this).attr("id") == "emailVoucher") $("#emailVoucherVerificationModal").modal("toggle");
+            });
+
+            $("#smsCodeVerificationFormNumber").on("submit", function(e) {
+                e.preventDefault();
+                triggeredBy = 1;
+
+                $.ajax({
+                    type: "POST",
+                    url: "endpoint/verifyUserPhoneNumber",
+                    data: new FormData(this),
+                    contentType: false,
+                    cache: false,
+                    processData: false,
+                    success: function(result) {
+                        console.log(result);
+                        if (result.success) {
+                            $("#smsCodeVerifyBoxNumber").slideUp();
+                            $("#smsCodeVerifyBoxCode").slideDown();
+                            flashMessage("sms-message", "alert-success", result.message);
+                        } else {
+                            flashMessage("sms-message", "alert-danger", result.message);
+                        }
+                    },
+                    error: function(error) {
+                        console.log(error.statusText);
+                    }
+                });
+            });
+
+            $("#smsVerificationCode").on("keyup", function(e) {
+                if (this.value.length == 6) $("#smsVerificationForm").submit();
+            });
+
+            $("#smsVerificationForm").on("submit", function(e) {
+                e.preventDefault();
+                triggeredBy = 2;
+
+                $.ajax({
+                    type: "POST",
+                    url: "endpoint/verifyCode",
+                    data: new FormData(this),
+                    contentType: false,
+                    cache: false,
+                    processData: false,
+                    success: function(result) {
+                        console.log(result);
+                        if (result.success) {
+                            $("#submitBtn").prop("disabled", false);
+                            $("#smsCodeVerifyBoxNumber").slideUp();
+                            $("#smsCodeVerifyBoxCode").slideUp();
+                            $("#smsSuccessVerificationMessage").fadeIn(1000);
+                            $("#displayVerified").slideDown();
+                            alert($("#country_code").val());
+                            $("#displayVerifiedContent").html("<b class='text-success'>(" + <?= $_SESSION["verification"]["data"]["country_code"] ?> + ") " + <?= $_SESSION["verification"]["data"]["phone_number"] ?> + " verified.</b>");
+                            $("#verificationTypeSelect").slideDown();
+                        } else {
+                            flashMessage("sms-message", "alert-danger", result.message);
+                            $("#submitBtn").prop("disabled", true);
+                            $("#smsVerificationCode").focus();
+                        }
+                    },
+                    error: function(error) {
+                        console.log(error.statusText);
+                    }
+                });
+                return;
+            });
+
             $("#change-pn").on("click", function() {
                 $("#smsCodeVerifyBoxNumber").slideDown();
                 $("#smsCodeVerifyBoxCode").slideUp();
-            })
+            });
+
+            $("#emailCodeVerificationFormNumber").on("submit", function(e) {
+                e.preventDefault();
+                triggeredBy = 1;
+
+                $.ajax({
+                    type: "POST",
+                    url: "endpoint/verifyUserEmailAddress",
+                    data: new FormData(this),
+                    contentType: false,
+                    cache: false,
+                    processData: false,
+                    success: function(result) {
+                        console.log(result);
+                        if (result.success) {
+                            $("#emailCodeVerifyBoxNumber").slideUp();
+                            $("#emailCodeVerifyBoxCode").slideDown();
+                            flashMessage("email-message", "alert-success", result.message);
+                        } else {
+                            flashMessage("email-message", "alert-danger", result.message);
+                        }
+                    },
+                    error: function(error) {
+                        console.log(error.statusText);
+                    }
+                });
+            });
+
+            $("#emailVerificationCode").on("keyup", function(e) {
+                if (this.value.length == 6) $("#emailVerificationForm").submit();
+            });
+
+            $("#emailVerificationForm").on("submit", function(e) {
+                e.preventDefault();
+                triggeredBy = 2;
+
+                $.ajax({
+                    type: "POST",
+                    url: "endpoint/verifyCode",
+                    data: new FormData(this),
+                    contentType: false,
+                    cache: false,
+                    processData: false,
+                    success: function(result) {
+                        console.log(result);
+                        if (result.success) {
+                            $("#submitBtn").prop("disabled", false);
+                            $("#emailCodeVerifyBoxNumber").slideUp();
+                            $("#emailCodeVerifyBoxCode").slideUp();
+                            $("#emailSuccessVerificationMessage").fadeIn(1000);
+                            $("#displayVerified").slideDown();
+                            alert($("#country_code").val());
+                            $("#displayVerifiedContent").html("<b class='text-success'>(" + <?= $_SESSION["verification"]["data"]["country_code"] ?> + ") " + <?= $_SESSION["verification"]["data"]["phone_number"] ?> + " verified.</b>");
+                            $("#verificationTypeSelect").slideDown();
+                        } else {
+                            flashMessage("email-message", "alert-danger", result.message);
+                            $("#submitBtn").prop("disabled", true);
+                            $("#emailVerificationCode").focus();
+                        }
+                    },
+                    error: function(error) {
+                        console.log(error.statusText);
+                    }
+                });
+                return;
+            });
+
+            $("#change-ea").on("click", function() {
+                $("#emailCodeVerifyBoxNumber").slideDown();
+                $("#emailCodeVerifyBoxCode").slideUp();
+            });
 
             var count = 60;
             var intervalId = setInterval(() => {
@@ -336,7 +441,7 @@ if (!isset($_SESSION["_purchaseToken"])) {
             }, 1000); //1000 will  run it every 1 second
 
             $(".resend-code").click(function() {
-                triggeredBy = 4;
+                triggeredBy = 3;
 
                 $.ajax({
                     type: "POST",
@@ -402,13 +507,14 @@ if (!isset($_SESSION["_purchaseToken"])) {
             $(document).on({
                 ajaxStart: function() {
                     if (triggeredBy == 1) $("#smsCodeVerificationFormNumber").prop("disabled", true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Sending...');
-                    if (triggeredBy == 2) $("#verification-code").prop("disabled", true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Verifying...');
-                    if (triggeredBy == 4) $(".resend-code").prop("disabled", true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Sending...');
-                    if (triggeredBy == 4) $("#submitBtn").prop("disabled", true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Sending...');
+                    if (triggeredBy == 2) $("#smsVerificationCode").prop("disabled", true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Verifying...');
+                    if (triggeredBy == 3) $(".resend-code").prop("disabled", true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Sending...');
+                    if (triggeredBy == 4) $("#submitBtn").prop("disabled", true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...');
                 },
                 ajaxStop: function() {
                     if (triggeredBy == 1) $("#smsCodeVerificationFormNumber").prop("disabled", false).html('<span class="bi bi-send" role="status" aria-hidden="true"> Send</span>');
-                    if (triggeredBy == 2) $("#verification-code").prop("disabled", false);
+                    if (triggeredBy == 2) $("#smsVerificationCode").prop("disabled", false);
+                    if (triggeredBy == 3) $(".resend-code").prop("disabled", false).html('Resend code');
                     if (triggeredBy == 4) $("#submitBtn").prop("disabled", false).html('Pay');
                 }
             });

@@ -52,7 +52,7 @@ elseif ($_SERVER['REQUEST_METHOD'] == "POST") {
         die(json_encode($data));
     }
     //
-    else if ($_GET["url"] == "verifyStep2") {
+    else if ($_GET["url"] == "verifyUserEmailAddress") {
         $email_address = array("email_address" => $expose->validateInput($_POST["email_address"]));
         $v_code = $expose->genCode(6);
 
@@ -78,8 +78,7 @@ elseif ($_SERVER['REQUEST_METHOD'] == "POST") {
         die(json_encode($data));
     }
     // verify step 4
-    elseif ($_GET["url"] == "verifyStep4") {
-
+    elseif ($_GET["url"] == "verifyUserPhoneNumber") {
         if (!isset($_POST["country-code"]) || empty($_POST["country-code"]))
             die(json_encode(array("success" => false, "message" => "Country code is required!")));
         if (!isset($_POST["phone-number"]) || empty($_POST["phone-number"]))
@@ -117,11 +116,11 @@ elseif ($_SERVER['REQUEST_METHOD'] == "POST") {
         switch ($_SESSION["verification"]["type"]) {
             case 'sms':
                 if ($code == $_SESSION["verification"]['sms_code']) {
-                    $data["verification"]["vStatus"] = "success";
+                    $_SESSION["verification"]["vStatus"] = "success";
                     $data["success"] = true;
                     $data["message"] = "Phone number verification successful!";
                 } else {
-                    $data["verification"]["vStatus"] = "failed";
+                    $_SESSION["verification"]["vStatus"] = "failed";
                     $data["success"] = false;
                     $data["message"] = "OTP code provided is incorrect!";
                 }
@@ -129,11 +128,11 @@ elseif ($_SERVER['REQUEST_METHOD'] == "POST") {
 
             case 'email':
                 if ($code == $_SESSION["verification"]['email_code']) {
-                    $data["verification"]["vStatus"] = "success";
+                    $_SESSION["verification"]["vStatus"] = "success";
                     $data["success"] = true;
                     $data["message"] = "Email address verification successful!";
                 } else {
-                    $data["verification"]["vStatus"] = "failed";
+                    $_SESSION["verification"]["vStatus"] = "failed";
                     $data["success"] = false;
                     $data["message"] = "OTP code provided is incorrect!";
                 }
