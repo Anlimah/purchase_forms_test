@@ -85,10 +85,12 @@ if (!isset($_SESSION["_purchaseToken"])) {
                                     <div id="displayVerified" style="display: <?= (isset($_SESSION["verification"]["vStatus"]) && $_SESSION["verification"]["vStatus"] == "success") ? "block" : "none" ?>">
                                         <div class="flex-row justify-space-between">
                                             <p id="displayVerifiedContent">
-                                                <?php
-                                                if (isset($_SESSION["verification"]["type"]) && $_SESSION["verification"]["type"] == "sms") echo "<b class='text-success'>(" . $_SESSION["verification"]["data"]["country_code"] . ") " . $_SESSION["verification"]["data"]["phone_number"] . " verified.</b>";
-                                                elseif (isset($_SESSION["verification"]["type"]) && $_SESSION["verification"]["type"] == "email") echo "<b class='text-success'>" . $_SESSION["verification"]["data"]["email_address"] . " verified.</b>";
-                                                ?>
+                                                <b class='text-success'>
+                                                    <?php
+                                                    if (isset($_SESSION["verification"]["type"]) && $_SESSION["verification"]["type"] == "sms") echo "(" . $_SESSION["verification"]["data"]["country_code"] . ") " . $_SESSION["verification"]["data"]["phone_number"] . " verified.";
+                                                    elseif (isset($_SESSION["verification"]["type"]) && $_SESSION["verification"]["type"] == "email") echo $_SESSION["verification"]["data"]["email_address"] . " verified.";
+                                                    ?>
+                                                </b>
                                             </p>
                                             <span id="changeVerification" class="text-danger" style="text-decoration: underline; cursor: pointer;"><b>Change</b></span>
                                         </div>
@@ -338,7 +340,7 @@ if (!isset($_SESSION["_purchaseToken"])) {
                             $("#smsCodeVerifyBoxCode").slideUp();
                             $("#smsSuccessVerificationMessage").fadeIn(1000);
                             $("#displayVerified").slideDown();
-                            $("#displayVerifiedContent").html("<b class='text-success'>(" + <?= isset($_SESSION["verification"]["data"]["country_code"]) ? $_SESSION["verification"]["data"]["country_code"] : "" ?> + ") " + <?= isset($_SESSION["verification"]["data"]["phone_number"]) ? $_SESSION["verification"]["data"]["phone_number"] : "" ?> + " verified.</b>");
+                            $("#displayVerifiedContent").html('<?= (isset($_SESSION["verification"]["data"]["country_code"]) && isset($_SESSION["verification"]["data"]["phone_number"])) ? $_SESSION["verification"]["data"]["country_code"] . " " . $_SESSION["verification"]["data"]["phone_number"] . " verified." : "" ?>');
                             $("#verificationTypeSelect").slideDown();
                         } else {
                             flashMessage("sms-message", "alert-danger", result.message);
@@ -408,7 +410,7 @@ if (!isset($_SESSION["_purchaseToken"])) {
                             $("#emailCodeVerifyBoxCode").slideUp();
                             $("#emailSuccessVerificationMessage").fadeIn(1000);
                             $("#displayVerified").slideDown();
-                            $("#displayVerifiedContent").html("<b class='text-success'>" + <?= isset($_SESSION["verification"]["data"]["email_address"]) ? $_SESSION["verification"]["data"]["email_address"] : "" ?> + " verified.</b>");
+                            $("#displayVerifiedContent").html('<?= isset($_SESSION["verification"]["data"]["email_address"]) ? $_SESSION["verification"]["data"]["email_address"] . " verified." : "" ?>');
                             $("#verificationTypeSelect").slideDown();
                         } else {
                             flashMessage("email-message", "alert-danger", result.message);
