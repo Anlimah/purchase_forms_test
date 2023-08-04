@@ -113,7 +113,7 @@ elseif ($_SERVER['REQUEST_METHOD'] == "POST") {
                 if ($code == $_SESSION["verification"]['sms_code']) {
                     $_SESSION["verification"]["vStatus"] = "success";
                     $data["success"] = true;
-                    $data["message"] = "Phone number verification successful!";
+                    $data["vData"] = "(" . $_SESSION["verification"]["data"]["country_code"] . ") " . $_SESSION["verification"]["data"]["phone_number"];
                 } else {
                     $_SESSION["verification"]["vStatus"] = "failed";
                     $data["success"] = false;
@@ -125,7 +125,7 @@ elseif ($_SERVER['REQUEST_METHOD'] == "POST") {
                 if ($code == $_SESSION["verification"]['email_code']) {
                     $_SESSION["verification"]["vStatus"] = "success";
                     $data["success"] = true;
-                    $data["message"] = "Email address verification successful!";
+                    $data["vData"] = $_SESSION["verification"]["data"]["email_address"];
                 } else {
                     $_SESSION["verification"]["vStatus"] = "failed";
                     $data["success"] = false;
