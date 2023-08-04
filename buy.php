@@ -1,6 +1,14 @@
 <?php
 session_start();
 
+require_once('bootstrap.php');
+
+use Src\Controller\ExposeDataController;
+
+$expose = new ExposeDataController();
+
+if (empty($expose->getCurrentAdmissionPeriodID())) header("Location: close.php");
+
 if (!isset($_SESSION["_purchaseToken"])) {
     $rstrong = true;
     $_SESSION["_purchaseToken"] = hash('sha256', bin2hex(openssl_random_pseudo_bytes(64, $rstrong)));
@@ -50,11 +58,6 @@ if (!isset($_SESSION["_purchaseToken"])) {
                                 <select name="available-forms" id="available-forms" title="Select the type of form you want to purchase." class="form-select form-info" required>
                                     <option selected disabled value="">Choose...</option>
                                     <?php
-                                    require_once('bootstrap.php');
-
-                                    use Src\Controller\ExposeDataController;
-
-                                    $expose = new ExposeDataController();
                                     $data = $expose->getAvailableForms();
                                     foreach ($data as $fp) {
                                     ?>
