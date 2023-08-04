@@ -53,7 +53,10 @@ elseif ($_SERVER['REQUEST_METHOD'] == "POST") {
     }
     //
     else if ($_GET["url"] == "verifyUserEmailAddress") {
-        $email_address = array("email_address" => $expose->validateInput($_POST["email_address"]));
+        if (!isset($_POST["email-address"]) || empty($_POST["email-address"]))
+            die(json_encode(array("success" => false, "message" => "Email address is required!")));
+
+        $email_address = $expose->validateEmail($_POST["email_address"]);
         $v_code = $expose->genCode(6);
 
         $subject = 'VERIFICATION CODE';

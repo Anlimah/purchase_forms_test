@@ -142,7 +142,7 @@ if (!isset($_SESSION["_purchaseToken"])) {
                                     </p>
                                     <div class="mb-4 flex-row">
                                         <div style="flex-grow: 9; margin-right: 5px">
-                                            <input title="Provide your email address" class="form-control" type="email" name="email_address" id="email_address" placeholder="example@company.com" required>
+                                            <input title="Provide your email address" class="form-control" type="email" name="email-address" id="email-address" placeholder="example@company.com" required>
                                         </div>
                                         <button style="flex-grow: 2;" class="btn btn-primary" type="submit" id="verifyEmailBtn">Send</button>
                                     </div>
