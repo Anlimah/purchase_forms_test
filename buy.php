@@ -84,14 +84,7 @@ if (!isset($_SESSION["_purchaseToken"])) {
                                     <p class="form-label">How do you want to receive voucher details?</p>
                                     <div id="displayVerified" style="display: <?= (isset($_SESSION["verification"]["vStatus"]) && $_SESSION["verification"]["vStatus"] == "success") ? "block" : "none" ?>">
                                         <div class="flex-row justify-space-between">
-                                            <b class='text-success'>
-                                                <p id="displayVerifiedContent">
-                                                    <?php
-                                                    if (isset($_SESSION["verification"]["type"]) && $_SESSION["verification"]["type"] == "sms") echo "(" . $_SESSION["verification"]["data"]["country_code"] . ") " . $_SESSION["verification"]["data"]["phone_number"] . " verified.";
-                                                    elseif (isset($_SESSION["verification"]["type"]) && $_SESSION["verification"]["type"] == "email") echo $_SESSION["verification"]["data"]["email_address"] . " verified.";
-                                                    ?>
-                                                </p>
-                                            </b>
+                                            <p class='text-success'><b id="displayVerifiedContent"></b></p>
                                             <span id="changeVerification" class="text-danger" style="text-decoration: underline; cursor: pointer;"><b>Change</b></span>
                                         </div>
                                     </div>
@@ -108,7 +101,10 @@ if (!isset($_SESSION["_purchaseToken"])) {
                                 <input type="hidden" name="form-price" id="form-price" value="0">
                                 <input type="hidden" name="form-type" id="form-type" value="0">
                                 <input type="hidden" name="_vPToken" value="<?= $_SESSION["_purchaseToken"]; ?>">
-
+                                <input type="hidden" name="verifiedAccount" id="verifiedAccount" value="<?php
+                                                                                                        if (isset($_SESSION["verification"]["type"]) && $_SESSION["verification"]["type"] == "sms") echo "(" . $_SESSION["verification"]["data"]["country_code"] . ") " . $_SESSION["verification"]["data"]["phone_number"] . " verified.";
+                                                                                                        elseif (isset($_SESSION["verification"]["type"]) && $_SESSION["verification"]["type"] == "email") echo $_SESSION["verification"]["data"]["email_address"] . " verified.";
+                                                                                                        ?>">
                                 <button class="btn btn-primary" type="submit" id="submitBtn" style="width:100%" disabled>Pay</button>
 
                             </div>
@@ -258,6 +254,8 @@ if (!isset($_SESSION["_purchaseToken"])) {
 
             var triggeredBy = 0;
 
+            if ($("#verifiedAccount").val() != "") $("#displayVerifiedContent").text($("#verifiedAccount").val());
+
             $(".form-info").change("blur", function() {
                 $.ajax({
                     type: "POST",
@@ -340,7 +338,6 @@ if (!isset($_SESSION["_purchaseToken"])) {
                             $("#smsCodeVerifyBoxCode").slideUp();
                             $("#smsSuccessVerificationMessage").fadeIn(1000);
                             $("#displayVerified").slideDown();
-                            $("#displayVerifiedContent").html('<?= (isset($_SESSION["verification"]["data"]["country_code"]) && isset($_SESSION["verification"]["data"]["phone_number"])) ? $_SESSION["verification"]["data"]["country_code"] . " " . $_SESSION["verification"]["data"]["phone_number"] . " verified." : "" ?>');
                             $("#verificationTypeSelect").slideDown();
                         } else {
                             flashMessage("sms-message", "alert-danger", result.message);
@@ -410,7 +407,6 @@ if (!isset($_SESSION["_purchaseToken"])) {
                             $("#emailCodeVerifyBoxCode").slideUp();
                             $("#emailSuccessVerificationMessage").fadeIn(1000);
                             $("#displayVerified").slideDown();
-                            $("#displayVerifiedContent").html('<?= isset($_SESSION["verification"]["data"]["email_address"]) ? $_SESSION["verification"]["data"]["email_address"] . " verified." : "" ?>');
                             $("#verificationTypeSelect").slideDown();
                         } else {
                             flashMessage("email-message", "alert-danger", result.message);
