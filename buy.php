@@ -144,7 +144,7 @@ if (!isset($_SESSION["_purchaseToken"])) {
                                         <div style="flex-grow: 9; margin-right: 5px">
                                             <input title="Provide your email address" class="form-control" type="email" name="email_address" id="email_address" placeholder="example@company.com" required>
                                         </div>
-                                        <button style="flex-grow: 2;" class="btn btn-primary" type="button" id="verifyEmailBtn">Send</button>
+                                        <button style="flex-grow: 2;" class="btn btn-primary" type="submit" id="verifyEmailBtn">Send</button>
                                     </div>
                                 </form>
                             </div>
@@ -155,7 +155,7 @@ if (!isset($_SESSION["_purchaseToken"])) {
                                         <p class="mb-4" style="color:#003262;">A 6 digit code has been sent to your email address. Check your inbox and enter the code</p>
                                         <div class="mb-4 flex-row" style="width:100%; justify-content: center">
                                             <input required name="code" id="emailVerificationCode" class="form-control" type="text" maxlength="6" style="text-align:center;" placeholder="XXXXXX">
-                                            <span id="emailVerificationCodeLoadArea" style="display: none;"></span>
+                                            <span id="emailVerificationCodeLoadArea" style="display: none; margin-left: 5px"></span>
                                         </div>
                                         <div class="mb-4 flex-row align-items-baseline justify-space-between" style="width: 100%;">
                                             <a href="javascript:void()" id="change-ea">Change email address</a>
@@ -227,7 +227,7 @@ if (!isset($_SESSION["_purchaseToken"])) {
                                         <p class="mb-4" style="color:#003262;">A 6 digit code has been sent to your phone number. Check your inbox and enter the code</p>
                                         <div class="mb-4 flex-row" style="width:100%; justify-content: center">
                                             <input required name="code" id="smsVerificationCode" class="form-control" type="text" maxlength="6" style="text-align:center;" placeholder="XXXXXX">
-                                            <span id="smsVerificationCodeLoadArea" style="display: none;"></span>
+                                            <span id="smsVerificationCodeLoadArea" style="display: none; margin-left: 5px"></span>
                                         </div>
                                         <div class="mb-4 flex-row align-items-baseline justify-space-between" style="width: 100%;">
                                             <a href="javascript:void()" id="change-pn">Change number</a>
