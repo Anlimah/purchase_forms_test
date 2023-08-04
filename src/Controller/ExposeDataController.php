@@ -274,11 +274,10 @@ class ExposeDataController
         $mail->Body = $message;
 
         try {
-            if ($mail->send()) return 1;
+            if ($mail->send()) return array("success" => true);
         } catch (Exception $e) {
-            echo "Mailer Error: " . $mail->ErrorInfo;
+            return array("success" => false, "message" => "Mailer Error: " . $mail->ErrorInfo);
         }
-        return 0;
     }
 
     public function sendHubtelSMS($url, $payload)
@@ -311,8 +310,12 @@ class ExposeDataController
     public function sendEmailVerificationCode($email)
     {
         $v_code = $this->genCode(6);
-        $subject = 'VERIFICATION CODE';
-        $message = "Your verification code: " . $v_code;
+
+        $subject = 'RMU Forms Online Verification Code';
+        $message = "Hi,";
+        $message .= "<br><p>This is your verification code <b style='font-size: 24px'>" . $v_code . "</b></p>";
+        $message .= "<br><p>Codes expires after 30 minutes.</p>";
+        $message .= "<br><br><p>Thank you.</p>";
 
         if (!$this->sendEmail($email, $subject, $message)) return 0;
         return $v_code;

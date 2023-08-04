@@ -57,19 +57,12 @@ elseif ($_SERVER['REQUEST_METHOD'] == "POST") {
             die(json_encode(array("success" => false, "message" => "Email address is required!")));
 
         $email_address = $expose->validateEmail($_POST["email-address"]);
-        $v_code = $expose->genCode(6);
-
-        $subject = 'VERIFICATION CODE';
-        $message = "Hi,";
-        $message .= "<br>This is your verification code <b style='font-size: 24px'>" . $v_code . "</b>";
-        $message .= "<br><br>Thank you.";
-
-        $response = $expose->sendEmail($email_address, $subject, $message);
-        if ($response != 1) die(json_encode(array("success" => false, "message" => "Failed to send code to your email!")));
+        $response = $expose->sendEmailVerificationCode($email_address);
+        if (!isset($response["otp_code"])) die(json_encode(array("success" => false, "message" => $response["message"])));
 
         $_SESSION["verification"]["type"] = "email";
         $_SESSION["verification"]["data"] = array("email_address" => $email_address);
-        $_SESSION["verification"]['email_code'] = $v_code;
+        $_SESSION["verification"]['email_code'] = $response["otp_code"];
         $_SESSION["verification"]['sentStatus'] = true;
 
         die(json_encode(array("success" => true, "message" => "Code successfully sent to your phone number!")));
@@ -217,7 +210,7 @@ elseif ($_SERVER['REQUEST_METHOD'] == "POST") {
 
     // Resend verification code
     elseif ($_GET["url"] == "resend-code") {
-        if (!isset($_SESSION["verification"])) die(json_encode(array("success" => false, "message" => "")));
+        if (!isset($_SESSION["verification"])) die(json_encode(array("success" => false, "message" => "Process could not complete!")));
 
         switch ($_SESSION["verification"]["type"]) {
             case 'sms':
@@ -238,13 +231,13 @@ elseif ($_SERVER['REQUEST_METHOD'] == "POST") {
                 break;
 
             case 'email':
-                $v_code = $expose->sendEmailVerificationCode($_SESSION["verification"]["data"]["email_address"]);
+                $response = $expose->sendEmailVerificationCode($_SESSION["verification"]["data"]["email_address"]);
 
-                if (!$v_code) {
+                if (!isset($response["otp_code"])) {
                     $_SESSION["verification"]['email_code'] = "";
                     $_SESSION["verification"]['sentStatus'] = false;
                     $data["success"] = false;
-                    $data["message"] = "Failed to send code to email!";
+                    $data["message"] = $response["message"];
                 } else {
                     $_SESSION["verification"]['email_code'] = $response["otp_code"];
                     $_SESSION["verification"]['sentStatus'] = true;
