@@ -90,9 +90,9 @@ elseif ($_SERVER['REQUEST_METHOD'] == "POST") {
         $charPos = strpos($country, ")");
         $country_name = substr($country, ($charPos + 2));
         $country_code = substr($country, 1, ($charPos - 1));
-
         $to = $country_code . $phone_number;
         $response = $expose->sendOTP($to);
+        die(json_encode($response));
 
         if (!isset($response["otp_code"])) die(json_encode(array("success" => false, "message" => "Failed to send code to your phone number!")));
 

@@ -159,8 +159,8 @@ if (!isset($_SESSION["_purchaseToken"])) {
                                         </div>
                                         <div class="mb-4 flex-row align-items-baseline justify-space-between" style="width: 100%;">
                                             <a href="javascript:void()" id="change-ea">Change email address</a>
-                                            <span class="timer" style="display: none;"></span>
-                                            <button class="resend-code btn btn-outline-dark btn-xs">Resend code</button>
+                                            <span id="email-timer" class="timer" style="display: none;" data-timerType="email"></span>
+                                            <button id="email-resend-code" class="resend-code btn btn-outline-dark btn-xs" data-resendType="email">Resend code</button>
                                         </div>
                                     </div>
                                 </form>
@@ -230,8 +230,8 @@ if (!isset($_SESSION["_purchaseToken"])) {
                                         </div>
                                         <div class="mb-4 flex-row align-items-baseline justify-space-between" style="width: 100%;">
                                             <a href="javascript:void()" id="change-pn">Change number</a>
-                                            <span class="timer" style="display: none;"></span>
-                                            <button class="resend-code btn btn-outline-dark btn-xs">Resend code</button>
+                                            <span id="sms-timer" class="timer" style="display: none;" data-timerType="sms"></span>
+                                            <button id="sms-resend-code" class="resend-code btn btn-outline-dark btn-xs" data-resendType="sms">Resend code</button>
                                         </div>
                                     </div>
                                 </form>
@@ -338,7 +338,7 @@ if (!isset($_SESSION["_purchaseToken"])) {
                             $("#smsSuccessVerificationMessage").fadeIn(1000);
                             $("#displayVerified").slideDown();
                             alert($("#country_code").val());
-                            $("#displayVerifiedContent").html("<b class='text-success'>(" + <?= $_SESSION["verification"]["data"]["country_code"] ?> + ") " + <?= $_SESSION["verification"]["data"]["phone_number"] ?> + " verified.</b>");
+                            $("#displayVerifiedContent").html("<b class='text-success'>(" + <?= isset($_SESSION["verification"]["data"]["country_code"]) ? $_SESSION["verification"]["data"]["country_code"] : "" ?> + ") " + <?= isset($_SESSION["verification"]["data"]["phone_number"]) ? $_SESSION["verification"]["data"]["phone_number"] : "" ?> + " verified.</b>");
                             $("#verificationTypeSelect").slideDown();
                         } else {
                             flashMessage("sms-message", "alert-danger", result.message);
@@ -408,8 +408,7 @@ if (!isset($_SESSION["_purchaseToken"])) {
                             $("#emailCodeVerifyBoxCode").slideUp();
                             $("#emailSuccessVerificationMessage").fadeIn(1000);
                             $("#displayVerified").slideDown();
-                            alert($("#country_code").val());
-                            $("#displayVerifiedContent").html("<b class='text-success'>(" + <?= $_SESSION["verification"]["data"]["country_code"] ?> + ") " + <?= $_SESSION["verification"]["data"]["phone_number"] ?> + " verified.</b>");
+                            $("#displayVerifiedContent").html("<b class='text-success'>" + <?= isset($_SESSION["verification"]["data"]["email_address"]) ? $_SESSION["verification"]["data"]["email_address"] : "" ?> + " verified.</b>");
                             $("#verificationTypeSelect").slideDown();
                         } else {
                             flashMessage("email-message", "alert-danger", result.message);
@@ -442,6 +441,9 @@ if (!isset($_SESSION["_purchaseToken"])) {
 
             $(".resend-code").click(function() {
                 triggeredBy = 3;
+                rtType = "";
+                if (this.dataset.resendType == "sms") rtType = "sms";
+                else if (this.dataset.resendType == "email") rtType = "email";
 
                 $.ajax({
                     type: "POST",
@@ -450,27 +452,27 @@ if (!isset($_SESSION["_purchaseToken"])) {
                         console.log(result);
                         //$("#num1").focus();
                         if (result.success) {
-                            flashMessage("alert-success", result.message);
+                            flashMessage(rtType + "-message", "alert-success", result.message);
 
                             clearInterval(intervalId);
-                            $(".timer").show();
-                            $(".resend-code").hide();
-                            $('.resend-code').attr("disabled", true);
+                            $("#" + rtType + "-timer").show();
+                            $("#" + rtType + "-resend-code").hide();
+                            $("#" + rtType + "-resend-code").attr("disabled", true);
 
                             count = 60;
                             intervalId = setInterval(() => {
-                                $(".timer").html("Resend code <b>(" + count + " sec)</b>");
+                                $("#" + rtType + "-timer").html("Resend code <b>(" + count + " sec)</b>");
                                 count = count - 1;
                                 if (count <= 0) {
                                     clearInterval(intervalId);
-                                    $('.timer').hide();
-                                    $(".resend-code").show();
-                                    $('.resend-code').attr("disabled", false);
+                                    $("#" + rtType + "-timer").hide();
+                                    $("#" + rtType + "-resend-code").show();
+                                    $("#" + rtType + "-resend-code").attr("disabled", false);
                                     return;
                                 }
                             }, 1000);
                         } else {
-                            flashMessage("alert-danger", result.message);
+                            flashMessage(rtType + "-message", "alert-danger", result.message);
                         }
                     },
                     error: function(error) {
