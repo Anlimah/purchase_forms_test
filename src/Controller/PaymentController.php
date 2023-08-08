@@ -116,11 +116,10 @@ class PaymentController
 
         $endpointUrl = "https://payments.anmgw.com/third_party_request";
         $response = json_decode($this->setOrchardPaymentGatewayParams($payload, $endpointUrl));
-        return $response;
+
         if ($response->resp_code == "000" && $response->resp_desc == "Passed") {
             //save Data to database
             $saved = $this->voucher->SaveFormPurchaseData($data, $trans_id);
-            //if (!$saved["success"]) return array("success" => false, "message" => "Failed saving customer data");
             if (!$saved["success"]) return $saved;
             return array("success" => true, "status" => $response->resp_code, "message" => $response->redirect_url);
         }

@@ -152,7 +152,7 @@ elseif ($_SERVER['REQUEST_METHOD'] == "POST") {
         $_SESSION["customerData"]["admin_period"]   = $expose->getCurrentAdmissionPeriodID();
         $_SESSION["customerData"]["verification"]   = $_SESSION["verification"];
 
-        $data = $expose->callOrchardGateway($_SESSION["customerData"]);
+        $data = $expose->callOrchardGateway($_SESSION["customerData"]); 
 
         /*session_unset();
         session_destroy();

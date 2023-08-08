@@ -174,10 +174,10 @@ class VoucherPurchase
 
         $fn = $data['first_name'];
         $ln = $data['last_name'];
-        $em = $data['email_address'];
-        $cn = $data['country_name'];
-        $cc = $data['country_code'];
-        $pn = $data['phone_number'];
+        $em = isset($_SESSION["verification"]["type"]) && $_SESSION["verification"]["type"] == "email" && $_SESSION["verification"]["vStatus"] == "success" ? $_SESSION["verification"]["data"]["email_address"] : "";
+        $cn = isset($_SESSION["verification"]["type"]) && $_SESSION["verification"]["type"] == "sms" && $_SESSION["verification"]["vStatus"] == "success" ? $_SESSION["verification"]["data"]["country_name"] : "";
+        $cc = isset($_SESSION["verification"]["type"]) && $_SESSION["verification"]["type"] == "sms" && $_SESSION["verification"]["vStatus"] == "success" ? $_SESSION["verification"]["data"]["country_code"] : "";
+        $pn = isset($_SESSION["verification"]["type"]) && $_SESSION["verification"]["type"] == "sms" && $_SESSION["verification"]["vStatus"] == "success" ? $_SESSION["verification"]["data"]["phone_number"] : "";
         $am = $data['amount'];
         $fi = $data['form_id'];
         $vd = $data['vendor_id'];
@@ -245,7 +245,7 @@ class VoucherPurchase
                 "Vendor {$vendor_id} sold form with transaction ID {$trans_id}"
             );
 
-            if ($data) {
+            if (!empty($data[0]["phone_number"])) {
                 $message = 'Your RMU Online Application login details. ';
                 $message .= 'APPLICATION NUMBER: RMU-' . $login_details['app_number'];
                 $message .= '    PIN: ' . $login_details['pin_number'] . ".";
@@ -261,19 +261,17 @@ class VoucherPurchase
                 }
             }
 
-            if ($data) {
-                if (!empty($data[0]["email_address"])) {
-                    // Prepare email
-                    $emailMsg = "<p>Hello " . $data["first_name"] . " " . $data["last_name"] . ", </p></br>";
-                    $emailMsg .= "<p>Find below your Login details to access the online application portal.</p></br>";
-                    $emailMsg .= "<p style='font-weight: bold;'>Application Number: " . $login_details['app_number'] . "</p>";
-                    $emailMsg .= "<p style='font-weight: bold;'>PIN Code: " . $login_details['pin_number'] . "</p></br>";
-                    $emailMsg .= "<div>Please note this: <span>DO NOT share your login details with anyone.</span></div>";
-                    $emailMsg .= "<p><a href='https://admissions.rmuictonline.com'>Click here</a> to access the online application portal and start the application process.</p>";
-                    $emailMsg .= "<p>Thank you for choosing Regional Maritime University.</p>";
-                    $emailMsg .= "<p>REGIONAL MARITIME UNIVERSITY</p>";
-                    $this->expose->sendEmail($data[0]["email_address"], 'RMU Forms Online - Form Purchase Information', $emailMsg);
-                }
+            if (!empty($data[0]["email_address"])) {
+                // Prepare email
+                $emailMsg = "<p>Hello " . $data["first_name"] . " " . $data["last_name"] . ", </p></br>";
+                $emailMsg .= "<p>Find below your Login details to access the online application portal.</p></br>";
+                $emailMsg .= "<p style='font-weight: bold;'>Application Number: " . $login_details['app_number'] . "</p>";
+                $emailMsg .= "<p style='font-weight: bold;'>PIN Code: " . $login_details['pin_number'] . "</p></br>";
+                $emailMsg .= "<div>Please note this: <span>DO NOT share your login details with anyone.</span></div>";
+                $emailMsg .= "<p><a href='https://admissions.rmuictonline.com'>Click here</a> to access the online application portal and start the application process.</p>";
+                $emailMsg .= "<p>Thank you for choosing Regional Maritime University.</p>";
+                $emailMsg .= "<p>REGIONAL MARITIME UNIVERSITY</p>";
+                $this->expose->sendEmail($data[0]["email_address"], 'RMU Forms Online - Form Purchase Information', $emailMsg);
                 return array("success" => true, "exttrid" => $trans_id);
             }
         } else {
