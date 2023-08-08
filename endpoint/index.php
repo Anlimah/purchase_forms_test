@@ -36,10 +36,11 @@ elseif ($_SERVER['REQUEST_METHOD'] == "POST") {
 
     // verify user email address
     if ($_GET["url"] == "verifyUserEmailAddress") {
-        if (!isset($_POST["email-address"]) || empty($_POST["email-address"]))
+
+        if (!isset($_POST["email_address"]) || empty($_POST["email_address"]))
             die(json_encode(array("success" => false, "message" => "Email address is required!")));
 
-        $email_address = $expose->validateEmail($_POST["email-address"]);
+        $email_address = $expose->validateEmail($_POST["email_address"]);
         $response = $expose->sendEmailVerificationCode($email_address);
         if (!$response["success"]) die(json_encode($response));
 
@@ -53,13 +54,13 @@ elseif ($_SERVER['REQUEST_METHOD'] == "POST") {
 
     // verify user phone number
     elseif ($_GET["url"] == "verifyUserPhoneNumber") {
-        if (!isset($_POST["country-code"]) || empty($_POST["country-code"]))
+        if (!isset($_POST["country_code"]) || empty($_POST["country_code"]))
             die(json_encode(array("success" => false, "message" => "Country code is required!")));
-        if (!isset($_POST["phone-number"]) || empty($_POST["phone-number"]))
+        if (!isset($_POST["phone_number"]) || empty($_POST["phone_number"]))
             die(json_encode(array("success" => false, "message" => "Phone number is required!")));
 
-        $country = $expose->validateCountryCode($_POST["country-code"]);
-        $phone_number = $expose->validatePhone($_POST["phone-number"]);
+        $country = $expose->validateCountryCode($_POST["country_code"]);
+        $phone_number = $expose->validatePhone($_POST["phone_number"]);
 
         $charPos = strpos($country, ")");
         $country_name = substr($country, ($charPos + 2));
@@ -142,19 +143,38 @@ elseif ($_SERVER['REQUEST_METHOD'] == "POST") {
             die(json_encode(array("success" => false, "message" => "Mode of payment required!")));
         if (!isset($_POST["form-price"]) || empty($_POST["form-price"]))
             die(json_encode(array("success" => false, "message" => "Choose a form type!")));
+        if (!isset($_POST["email-address"]) || empty($_POST["email-address"]))
+            die(json_encode(array("success" => false, "message" => "Email address is required!")));
+        if (!isset($_POST["country-code"]) || empty($_POST["country-code"]))
+            die(json_encode(array("success" => false, "message" => "Country code is required!")));
+        if (!isset($_POST["phone-number"]) || empty($_POST["phone-number"]))
+            die(json_encode(array("success" => false, "message" => "Phone number is required!")));
+
+        $country = $expose->validateCountryCode($_POST["country-code"]);
+        $phone_number = $expose->validatePhone($_POST["phone-number"]);
+
+        $charPos = strpos($country, ")");
+        $country_name = substr($country, ($charPos + 2));
+        $country_code = substr($country, 1, ($charPos - 1));
+
+        if (!isset($_SESSION["verification"]["vStatus"]) && $_SESSION["verification"]["vStatus"] != "success")
+            die(json_encode(array("success" => false, "message" => "Please choose a means for verification before you can continue!")));
 
         $_SESSION["customerData"]["first_name"]     = $expose->validateInput($_POST["first-name"]);
         $_SESSION["customerData"]["last_name"]      = $expose->validateInput($_POST["last-name"]);
         $_SESSION["customerData"]["form_id"]        = $expose->validatePhone($_POST["available-forms"]);
+        $_SESSION["customerData"]["email_address"]  = $expose->validateEmail($_POST["email-address"]);
+        $_SESSION["customerData"]["country_name"]   = $country_name;
+        $_SESSION["customerData"]["country_code"]   = $country_code;
+        $_SESSION["customerData"]["phone_number"]   = $phone_number;
         $_SESSION["customerData"]["amount"]         = $_POST["form-price"];
         $_SESSION["customerData"]["pay_method"]     = $expose->validateText($_POST["payment-method"]);
         $_SESSION["customerData"]["vendor_id"]      = $_SESSION["vendor_id"];
         $_SESSION["customerData"]["admin_period"]   = $expose->getCurrentAdmissionPeriodID();
-        $_SESSION["customerData"]["verification"]   = $_SESSION["verification"];
 
-        $data = $expose->callOrchardGateway($_SESSION["customerData"]); 
-
-        /*session_unset();
+        $data = $expose->callOrchardGateway($_SESSION["customerData"]);
+        die($data);
+        session_unset();
         session_destroy();
         $_SESSION = array();
 
@@ -169,7 +189,8 @@ elseif ($_SERVER['REQUEST_METHOD'] == "POST") {
                 $params["secure"],
                 $params["httponly"]
             );
-        }*/
+        }
+
         die(json_encode($data));
     }
 

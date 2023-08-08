@@ -44,17 +44,41 @@ if (!isset($_SESSION["_purchaseToken"])) {
                     <div class="purchase-card-body">
                         <form id="purchaseForm" method="post" enctype="multipart/form-data">
                             <div class="mb-4">
-                                <label class="form-label" for="first-name">First Name</label>
+                                <label class="form-label" for="first-name">First Name <span class="text-danger">*</span></label>
                                 <input title="Provide your first name" class="form-control" type="text" name="first-name" id="first-name" placeholder="Type your first name" required>
                             </div>
 
                             <div class="mb-4">
-                                <label class="form-label" for="last-name">Last Name</label>
+                                <label class="form-label" for="last-name">Last Name <span class="text-danger">*</span></label>
                                 <input style="width:100% !important" title="Provide your last name" class="form-control" type="text" name="last-name" id="last-name" placeholder="Type your last name" required>
                             </div>
 
                             <div class="mb-4">
-                                <label class="form-label" for="available-forms">Forms Type</label>
+                                <label class="form-label" for="email-address">Email Address <span class="text-danger">*</span></label>
+                                <input title="Provide your email address" class="form-control" type="email" name="email-address" id="email-address" placeholder="example@company.com" required>
+                            </div>
+
+                            <div class="mb-4 flex-row">
+                                <div class="me-2">
+                                    <label class="form-label" for="country-code">Country Code <span class="text-danger">*</span></label>
+                                    <select required name="country-code" id="country-code" title="Choose country and country code" class="form-select form-control country-code">
+                                        <option hidden value="">Choose...</option>
+                                        <?php
+                                        require_once('inc/page-data.php');
+                                        foreach (COUNTRIES as $cn) {
+                                            echo '<option value="(' . $cn["code"] . ') ' . $cn["name"] . '">(' . $cn["code"] . ') ' . $cn["name"] . '</option>';
+                                        }
+                                        ?>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="form-label" for="phone-number">Phone Number <span class="text-danger">*</span></label>
+                                    <input required name="phone-number" id="phone-number" maxlength="11" title="Provide your Provide Number" class="form-control" type="tel" placeholder="12345678901">
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label" for="available-forms">Forms Type <span class="text-danger">*</span></label>
                                 <select name="available-forms" id="available-forms" title="Select the type of form you want to purchase." class="form-select form-info" required>
                                     <option selected disabled value="">Choose...</option>
                                     <?php
@@ -75,7 +99,7 @@ if (!isset($_SESSION["_purchaseToken"])) {
                                 </p>
 
                                 <div class="mb-4">
-                                    <label class="form-label" for="payment-method">Choose the mode for payment</label>
+                                    <label class="form-label" for="payment-method">Choose the mode for payment <span class="text-danger">*</span></label>
                                     <select title="Choose the mode to pay for the selected form" class="form-select form-select-sm" name="payment-method" id="payment-method" required>
                                         <option selected disabled value="">Choose...</option>
                                         <option value="CRD">Credit/Debit Card</option>
@@ -140,21 +164,7 @@ if (!isset($_SESSION["_purchaseToken"])) {
                                 </div>
                             </div>
 
-                            <div id="emailCodeVerifyBoxNumber" class="mb-4">
-                                <form action="#" method="post" id="emailCodeVerificationFormNumber">
-                                    <p class="mb-4" style="color:#003262;">
-                                        We'll send you a message with a 6 digit code to verify your email address. Please provide your email address.<br>
-                                    </p>
-                                    <div class="mb-4 flex-row">
-                                        <div style="flex-grow: 9; margin-right: 5px">
-                                            <input title="Provide your email address" class="form-control" type="email" name="email-address" id="email-address" placeholder="example@company.com" required>
-                                        </div>
-                                        <button style="flex-grow: 2;" class="btn btn-primary" type="submit" id="verifyEmailBtn">Send</button>
-                                    </div>
-                                </form>
-                            </div>
-
-                            <div id="emailCodeVerifyBoxCode" style="width: 100%; display: none;">
+                            <div id="emailCodeVerifyBoxCode" style="width: 100%;">
                                 <form action="" method="post" id="emailVerificationForm">
                                     <div style="width: 100%; display:flex; flex-direction:column; align-items:center">
                                         <p class="mb-4" style="color:#003262;">A 6 digit code has been sent to your email address. Check your inbox and enter the code</p>
@@ -196,37 +206,7 @@ if (!isset($_SESSION["_purchaseToken"])) {
                                 </div>
                             </div>
 
-                            <div id="smsCodeVerifyBoxNumber" class="mb-4">
-                                <form action="#" method="post" id="smsCodeVerificationFormNumber">
-                                    <p class="mb-4" style="color:#003262;">
-                                        We'll send you an OTP message with a 6 digit code to verify your phone number. Please provide your phone number.<br>
-                                        <span class="text-danger"><b>Note:</b> We don't accept VoIP or Skype numbers.</span>
-                                    </p>
-                                    <div class="mb-2 flex-row">
-                                        <div class="col-md-6 me-2">
-                                            <label class="form-label" for="country-code">Country Code</label>
-                                            <select required name="country-code" id="country-code" title="Choose country and country code" class="form-select form-control country-code">
-                                                <option hidden value="">Choose...</option>
-                                                <?php
-                                                require_once('inc/page-data.php');
-                                                foreach (COUNTRIES as $cn) {
-                                                    echo '<option value="(' . $cn["code"] . ') ' . $cn["name"] . '">(' . $cn["code"] . ') ' . $cn["name"] . '</option>';
-                                                }
-                                                ?>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label" for="phone-number">Phone Number</label>
-                                            <input required name="phone-number" id="phone-number" maxlength="11" title="Provide your Provide Number" class="form-control" type="tel" placeholder="12345678901">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-12 mb-2 " style="width: 100% !important;">
-                                        <button class="btn btn-primary form-control" type="submit" id="verifySMSBtn">Send</button>
-                                    </div>
-                                </form>
-                            </div>
-
-                            <div id="smsCodeVerifyBoxCode" style="width: 100%; display: none;">
+                            <div id="smsCodeVerifyBoxCode" style="width: 100%;">
                                 <form action="" method="post" id="smsVerificationForm">
                                     <div style="width: 100%; display:flex; flex-direction:column; align-items:center">
                                         <p class="mb-4" style="color:#003262;">A 6 digit code has been sent to your phone number. Check your inbox and enter the code</p>
@@ -291,35 +271,67 @@ if (!isset($_SESSION["_purchaseToken"])) {
             });
 
             $(".verificationType").on("click", function() {
-                if ($(this).attr("id") == "smsVoucher") $("#smsVoucherInformationModal").modal("toggle");
-                if ($(this).attr("id") == "emailVoucher") $("#emailVoucherVerificationModal").modal("toggle");
-            });
-
-            $("#smsCodeVerificationFormNumber").on("submit", function(e) {
-                e.preventDefault();
-                triggeredBy = 1;
-
-                $.ajax({
-                    type: "POST",
-                    url: "endpoint/verifyUserPhoneNumber",
-                    data: new FormData(this),
-                    contentType: false,
-                    cache: false,
-                    processData: false,
-                    success: function(result) {
-                        console.log(result);
-                        if (result.success) {
-                            $("#smsCodeVerifyBoxNumber").slideUp();
-                            $("#smsCodeVerifyBoxCode").slideDown();
-                            flashMessage("sms-message", "alert-success", result.message);
-                        } else {
-                            flashMessage("sms-message", "alert-danger", result.message);
-                        }
-                    },
-                    error: function(error) {
-                        console.log(error.statusText);
+                if ($(this).attr("id") == "smsVoucher") {
+                    triggeredBy = 1;
+                    if ($("#country-code").val() == "") {
+                        alert("Invalid country code. Please select your country!");
+                        return
                     }
-                });
+
+                    if ($("#phone-number").val() == "") {
+                        alert("Invalid phone number. Please provide your phone number!");
+                        return
+                    }
+
+                    $.ajax({
+                        type: "POST",
+                        url: "endpoint/verifyUserPhoneNumber",
+                        data: {
+                            country_code: $("#country-code").val(),
+                            phone_number: $("#phone-number").val(),
+                        },
+                        success: function(result) {
+                            console.log(result);
+                            if (result.success) {
+                                $("#smsVoucherInformationModal").modal("toggle");
+                            } else {
+                                alert(result.message);
+                                //flashMessage("flashMessage", "alert-danger", );
+                            }
+                        },
+                        error: function(error) {
+                            console.log(error.statusText);
+                        }
+                    });
+                }
+
+                if ($(this).attr("id") == "emailVoucher") {
+                    triggeredBy = 3;
+                    if ($("#email-address").val() == "") {
+                        alert("Invalid email. Please provide a valid email address!");
+                        return
+                    }
+
+                    $.ajax({
+                        type: "POST",
+                        url: "endpoint/verifyUserEmailAddress",
+                        data: {
+                            email_address: $("#email-address").val()
+                        },
+                        success: function(result) {
+                            console.log(result);
+                            if (result.success) {
+                                $("#emailVoucherVerificationModal").modal("toggle");
+                            } else {
+                                alert(result.message);
+                                //flashMessage("email-message", "alert-danger", result.message);
+                            }
+                        },
+                        error: function(error) {
+                            console.log(error.statusText);
+                        }
+                    });
+                }
             });
 
             $("#smsVerificationCode").on("keyup", function(e) {
@@ -341,7 +353,7 @@ if (!isset($_SESSION["_purchaseToken"])) {
                         console.log(result);
                         if (result.success) {
                             $("#submitBtn").prop("disabled", false);
-                            $("#smsCodeVerifyBoxNumber").slideUp();
+                            //$("#smsCodeVerifyBoxNumber").slideUp();
                             $("#smsCodeVerifyBoxCode").slideUp();
                             $("#smsSuccessVerificationMessage").fadeIn(1000);
                             $("#displayVerified").slideDown();
@@ -363,33 +375,6 @@ if (!isset($_SESSION["_purchaseToken"])) {
             $("#change-pn").on("click", function() {
                 $("#smsCodeVerifyBoxNumber").slideDown();
                 $("#smsCodeVerifyBoxCode").slideUp();
-            });
-
-            $("#emailCodeVerificationFormNumber").on("submit", function(e) {
-                e.preventDefault();
-                triggeredBy = 3;
-
-                $.ajax({
-                    type: "POST",
-                    url: "endpoint/verifyUserEmailAddress",
-                    data: new FormData(this),
-                    contentType: false,
-                    cache: false,
-                    processData: false,
-                    success: function(result) {
-                        console.log(result);
-                        if (result.success) {
-                            $("#emailCodeVerifyBoxNumber").slideUp();
-                            $("#emailCodeVerifyBoxCode").slideDown();
-                            flashMessage("email-message", "alert-success", result.message);
-                        } else {
-                            flashMessage("email-message", "alert-danger", result.message);
-                        }
-                    },
-                    error: function(error) {
-                        console.log(error.statusText);
-                    }
-                });
             });
 
             $("#emailVerificationCode").on("keyup", function(e) {

@@ -174,10 +174,10 @@ class VoucherPurchase
 
         $fn = $data['first_name'];
         $ln = $data['last_name'];
-        $em = isset($_SESSION["verification"]["type"]) && $_SESSION["verification"]["type"] == "email" && $_SESSION["verification"]["vStatus"] == "success" ? $_SESSION["verification"]["data"]["email_address"] : "";
-        $cn = isset($_SESSION["verification"]["type"]) && $_SESSION["verification"]["type"] == "sms" && $_SESSION["verification"]["vStatus"] == "success" ? $_SESSION["verification"]["data"]["country_name"] : "";
-        $cc = isset($_SESSION["verification"]["type"]) && $_SESSION["verification"]["type"] == "sms" && $_SESSION["verification"]["vStatus"] == "success" ? $_SESSION["verification"]["data"]["country_code"] : "";
-        $pn = isset($_SESSION["verification"]["type"]) && $_SESSION["verification"]["type"] == "sms" && $_SESSION["verification"]["vStatus"] == "success" ? $_SESSION["verification"]["data"]["phone_number"] : "";
+        $em = $data["email_address"];
+        $cn = $data["country_name"];
+        $cc = $data["country_code"];
+        $pn = $data["phone_number"];
         $am = $data['amount'];
         $fi = $data['form_id'];
         $vd = $data['vendor_id'];
