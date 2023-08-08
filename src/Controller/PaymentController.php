@@ -114,6 +114,8 @@ class PaymentController
             "currency_val" => $data["amount"]
         ));
 
+        return $payload;
+
         $endpointUrl = "https://payments.anmgw.com/third_party_request";
         $response = json_decode($this->setOrchardPaymentGatewayParams($payload, $endpointUrl));
 
