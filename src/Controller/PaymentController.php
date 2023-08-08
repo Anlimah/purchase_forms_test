@@ -45,7 +45,6 @@ class PaymentController
         $secretKey = $client_id . ":" . $signature;
         try {
             $pay = new OrchardPaymentGateway($secretKey, $endpointUrl, $payload);
-            return 1;
             return $pay->initiatePayment();
         } catch (\Exception $e) {
             throw $e;
