@@ -33,26 +33,9 @@ if ($_SERVER['REQUEST_METHOD'] == "GET") {
 
 // All POST request will be sent here
 elseif ($_SERVER['REQUEST_METHOD'] == "POST") {
-    // verify customer first and last name details
-    if ($_GET["url"] == "verifyStep1") {
-        if (isset($_SESSION["_step1Token"]) && !empty($_SESSION["_step1Token"]) && isset($_POST["_v1Token"]) && !empty($_POST["_v1Token"]) && $_POST["_v1Token"] == $_SESSION["_step1Token"]) {
-            if (!isset($_SESSION["admin_period"]) || empty($_SESSION["admin_period"])) $_SESSION["admin_period"] = $expose->getCurrentAdmissionPeriodID();
 
-            $_SESSION["step1"] = array(
-                "first_name" => $expose->validateInput($_POST["first_name"]),
-                "last_name" => $expose->validateInput($_POST["last_name"])
-            );
-            $_SESSION['step1Done'] = true;
-            $data["success"] = true;
-            $data["message"] = "step2.php";
-        } else {
-            $data["success"] = false;
-            $data["message"] = "Invalid request!";
-        }
-        die(json_encode($data));
-    }
-    //
-    else if ($_GET["url"] == "verifyUserEmailAddress") {
+    // verify user email address
+    if ($_GET["url"] == "verifyUserEmailAddress") {
         if (!isset($_POST["email-address"]) || empty($_POST["email-address"]))
             die(json_encode(array("success" => false, "message" => "Email address is required!")));
 
@@ -67,13 +50,8 @@ elseif ($_SERVER['REQUEST_METHOD'] == "POST") {
 
         die(json_encode(array("success" => true, "message" => "Code successfully sent to your email!")));
     }
-    //
-    elseif ($_GET["url"] == "verifyStep3") {
-        if ($_POST["num"]) {
-        }
-        die(json_encode($data));
-    }
-    // verify step 4
+
+    // verify user phone number
     elseif ($_GET["url"] == "verifyUserPhoneNumber") {
         if (!isset($_POST["country-code"]) || empty($_POST["country-code"]))
             die(json_encode(array("success" => false, "message" => "Country code is required!")));
@@ -174,6 +152,7 @@ elseif ($_SERVER['REQUEST_METHOD'] == "POST") {
         $_SESSION["customerData"]["admin_period"]   = $expose->getCurrentAdmissionPeriodID();
         $_SESSION["customerData"]["verification"]   = $_SESSION["verification"];
 
+        die(json_encode($_SESSION["customerData"]));
         $data = $expose->callOrchardGateway($_SESSION["customerData"]);
 
         /*session_unset();
@@ -248,52 +227,6 @@ elseif ($_SERVER['REQUEST_METHOD'] == "POST") {
         }
         die(json_encode($data));
     }
-
-    //Verify customer phone number before sending Application login details
-    elseif ($_GET["url"] == "verifyCustomer") {
-        if (isset($_SESSION["_verifySMSToken"]) && !empty($_SESSION["_verifySMSToken"]) && isset($_POST["_vSMSToken"]) && !empty($_POST["_vSMSToken"]) && $_POST["_vSMSToken"] == $_SESSION["_verifySMSToken"]) {
-            if (isset($_POST["code"]) && !empty($_POST["code"])) {
-                $otp = "";
-                foreach ($_POST["code"] as $code) {
-                    $otp .= $code;
-                }
-
-                $otp_code = (int) $expose->validatePhone($otp);
-
-                if ($otp_code == $_SESSION['sms_code']) {
-                    if (isset($_SESSION["vendorData"]) && !empty($_SESSION["vendorData"])) {
-                        if ($expose->vendorExist($_SESSION["vendorData"]["vendor_id"])) {
-                            $data = $expose->processVendorPay($_SESSION["vendorData"]);
-                        } else {
-                            $data["success"] = false;
-                            $data["message"] = "Process can only be performed by a vendor!";
-                        }
-                    } else {
-                        $data["success"] = false;
-                        $data["message"] = "Empty data payload!";
-                    }
-                } else {
-                    $data["success"] = false;
-                    $data["message"] = "Entry did not match OTP code sent!";
-                }
-            } else {
-                $data["success"] = false;
-                $data["message"] = "Code entries are needed!";
-            }
-        } else {
-            $data["success"] = false;
-            $data["message"] = "Invalid request!";
-        }
-        die(json_encode($data));
-    }
-
-    // 
-} else if ($_SERVER['REQUEST_METHOD'] == "PUT") {
-    parse_str(file_get_contents("php://input"), $_PUT);
-    die(json_encode($data));
-} else if ($_SERVER['REQUEST_METHOD'] == "DELETE") {
-    parse_str(file_get_contents("php://input"), $_DELETE);
-    die(json_encode($data));
 } else {
     http_response_code(405);
 }
