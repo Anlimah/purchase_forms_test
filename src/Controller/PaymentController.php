@@ -45,6 +45,7 @@ class PaymentController
         $secretKey = $client_id . ":" . $signature;
         try {
             $pay = new OrchardPaymentGateway($secretKey, $endpointUrl, $payload);
+            return 1;
             return $pay->initiatePayment();
         } catch (\Exception $e) {
             throw $e;
@@ -113,8 +114,6 @@ class PaymentController
             "currency_code" => "GHS",
             "currency_val" => $data["amount"]
         ));
-
-        return $payload;
 
         $endpointUrl = "https://payments.anmgw.com/third_party_request";
         $response = json_decode($this->setOrchardPaymentGatewayParams($payload, $endpointUrl));
