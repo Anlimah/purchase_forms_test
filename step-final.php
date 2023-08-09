@@ -7,6 +7,14 @@ if (!isset($_GET['status']) || !isset($_GET['exttrid'])) header('Location: index
 if (isset($_GET['status']) && empty($_GET['status'])) header('Location: index.php?status=invalid');
 if (isset($_GET['exttrid']) && empty($_GET['exttrid'])) header('Location: index.php?status=invalid');/**/
 
+require_once('bootstrap.php');
+
+use Src\Controller\ExposeDataController;
+
+$expose = new ExposeDataController();
+
+
+
 ?>
 
 <!DOCTYPE html>
@@ -26,15 +34,9 @@ if (isset($_GET['exttrid']) && empty($_GET['exttrid'])) header('Location: index.
         <main class="container flex-container" style="margin-bottom: 100px;">
             <div class="flex-card">
                 <div class="form-card card">
-                    <div class="purchase-card-header">
+                    <div class="purchase-card-header mb-4">
                         <h1>Payment Status Confirmation</h1>
                     </div>
-
-                    <div class="purchase-card-step-info">
-                        <span class="step-capsule">Step Final</span>
-                    </div>
-
-                    <hr style="color:#999">
 
                     <div class="purchase-card-body">
                         <div class="pay-status" style="margin: 0px 10%;" style="align-items: baseline;">
@@ -42,7 +44,7 @@ if (isset($_GET['exttrid']) && empty($_GET['exttrid'])) header('Location: index.
                                 <div class="spinner-border" role="status">
                                     <span class="visually-hidden">Loading...</span>
                                 </div>
-                                <p style="margin-left: 10px; margin-top:3px" id="status-out"> Connecting...</p>
+                                <p style="margin-left: 10px; margin-top:3px" id="status-out">Connecting...</p>
                             </div>
                         </div>
                     </div>
@@ -79,8 +81,8 @@ if (isset($_GET['exttrid']) && empty($_GET['exttrid'])) header('Location: index.
 
             if (getUrlVars()["status"] != "" || getUrlVars()["status"] != undefined) {
                 if (getUrlVars()["exttrid"] != "" || getUrlVars()["exttrid"] != undefined) {
-                    let connect = 5000;
-                    let init = 5000;
+                    let connect = 15000;
+                    let init = 15000;
                     setTimeout(function() {
                         $("#status-out").text("Initializing...");
                         setTimeout(function() {

@@ -101,13 +101,13 @@ class PaymentController
         $trans_id = time();
         $payload = json_encode(array(
             "amount" => $data["amount"],
-            "callback_url" => "https://forms.rmuictonline.com/confirm.php",
+            "callback_url" => "https://api.rmuictonline.com/confirm.php",
             "exttrid" => $trans_id,
             "reference" => "RMU Forms Online",
             "service_id" => getenv('ORCHARD_SERVID'),
             "trans_type" => "CTM",
             "nickname" => "RMU",
-            "landing_page" => "https://forms.rmuictonline.com/step-final.php",
+            "landing_page" => "https://api.rmuictonline.com/step-final.php",
             "ts" => date("Y-m-d H:i:s"),
             "payment_mode" => $data["pay_method"],
             "currency_code" => "GHS",
