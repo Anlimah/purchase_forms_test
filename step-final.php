@@ -5,16 +5,7 @@ session_destroy();
 
 if (!isset($_GET['status']) || !isset($_GET['exttrid'])) header('Location: index.php?status=invalid');
 if (isset($_GET['status']) && empty($_GET['status'])) header('Location: index.php?status=invalid');
-if (isset($_GET['exttrid']) && empty($_GET['exttrid'])) header('Location: index.php?status=invalid');/**/
-
-require_once('bootstrap.php');
-
-use Src\Controller\ExposeDataController;
-
-$expose = new ExposeDataController();
-
-
-
+if (isset($_GET['exttrid']) && empty($_GET['exttrid'])) header('Location: index.php?status=invalid');
 ?>
 
 <!DOCTYPE html>
