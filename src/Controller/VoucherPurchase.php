@@ -212,8 +212,8 @@ class VoucherPurchase
     private function getAppPurchaseData(int $trans_id)
     {
         // get form_id, country code, phone number
-        $sql = "SELECT pd.`first_name`, pd.`last_name`, f.`form_id`, pd.`country_code`, pd.`phone_number`, pd.`email_address` 
-                FROM `purchase_detail` AS pd, forms AS f WHERE pd.`id` = :t AND f.`id` = pd.`form_id`";
+        $sql = "SELECT `first_name`, `last_name`, `form_id`, `country_code`, `phone_number`, `email_address` 
+                FROM `purchase_detail` WHERE `id` = :t";
         return $this->dm->getData($sql, array(':t' => $trans_id));
     }
 
