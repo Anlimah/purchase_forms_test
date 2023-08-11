@@ -124,10 +124,10 @@ if (!isset($_SESSION["_purchaseToken"])) {
                                     </div>
                                     <div id="verificationTypeSelect" style="display: <?= (isset($_SESSION["verification"]["vStatus"]) && $_SESSION["verification"]["vStatus"] == "success") ? "none" : "block" ?>;">
                                         <input type="radio" class="btn-check verificationType" name="verification-type" id="smsVoucher" value="sms" autocomplete="off">
-                                        <label class="btn btn-outline-secondary" for="smsVoucher">SMS</label>
+                                        <label class="btn btn-outline-secondary" for="smsVoucher" id="smsVoucherLabel">SMS</label>
 
                                         <input type="radio" class="btn-check verificationType" name="verification-type" id="emailVoucher" value="email" autocomplete="off">
-                                        <label class="btn btn-outline-secondary" for="emailVoucher">Email</label>
+                                        <label class="btn btn-outline-secondary" for="emailVoucher" id="emailVoucherLabel">Email</label>
                                     </div>
 
                                 </div>
@@ -172,10 +172,9 @@ if (!isset($_SESSION["_purchaseToken"])) {
                                             <input required name="code" id="emailVerificationCode" class="form-control" type="text" maxlength="6" style="text-align:center;" placeholder="XXXXXX">
                                             <span id="emailVerificationCodeLoadArea" style="display: none; margin-left: 5px"></span>
                                         </div>
-                                        <div class="mb-4 flex-row align-items-baseline justify-space-between" style="width: 100%;">
-                                            <a href="javascript:void()" id="change-ea">Change email address</a>
+                                        <div class="mb-4 flex-row" style="width: 100%;">
                                             <span id="email-timer" class="timer" style="display: none;" data-timerType="email"></span>
-                                            <button id="email-resend-code" class="resend-code btn btn-outline-dark btn-xs" data-resendType="email">Resend code</button>
+                                            <button id="email-resend-code" class="resend-code btn btn-outline-dark" data-resendType="email" type="button">Resend code</button>
                                         </div>
                                     </div>
                                 </form>
@@ -211,13 +210,12 @@ if (!isset($_SESSION["_purchaseToken"])) {
                                     <div style="width: 100%; display:flex; flex-direction:column; align-items:center">
                                         <p class="mb-4" style="color:#003262;">A 6 digit code has been sent to your phone number. Check your inbox and enter the code</p>
                                         <div class="mb-4 flex-row" style="width:100%; justify-content: center">
-                                            <input required name="code" id="smsVerificationCode" class="form-control" type="text" maxlength="6" style="text-align:center;" placeholder="XXXXXX">
+                                            <input required name="code" id="smsVerificationCode" class="form-control" type="text" maxlength="6" style="text-align:center; width: 100%" placeholder="XXXXXX">
                                             <span id="smsVerificationCodeLoadArea" style="display: none; margin-left: 5px"></span>
                                         </div>
-                                        <div class="mb-4 flex-row align-items-baseline justify-space-between" style="width: 100%;">
-                                            <a href="javascript:void()" id="change-pn">Change number</a>
+                                        <div class="mb-4 flex-row" style="width: 100%;">
                                             <span id="sms-timer" class="timer" style="display: none;" data-timerType="sms"></span>
-                                            <button id="sms-resend-code" class="resend-code btn btn-outline-dark btn-xs" data-resendType="sms">Resend code</button>
+                                            <button id="sms-resend-code" class="resend-code btn btn-outline-dark" data-resendType="sms" type="button">Resend code</button>
                                         </div>
                                     </div>
                                 </form>
@@ -426,7 +424,6 @@ if (!isset($_SESSION["_purchaseToken"])) {
                 count = count - 1;
                 if (count <= 0) {
                     clearInterval(intervalId);
-                    $('.timer').hide();
                     return;
                 }
             }, 1000); //1000 will  run it every 1 second
@@ -495,12 +492,12 @@ if (!isset($_SESSION["_purchaseToken"])) {
 
             $(document).on({
                 ajaxStart: function() {
-                    if (triggeredBy == 1) $("#verifySMSBtn").prop("disabled", true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Sending...');
+                    if (triggeredBy == 1) $("#smsVoucherLabel").prop("disabled", true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Sending...');
                     if (triggeredBy == 2) {
                         $("#smsVerificationCode").prop("disabled", true);
                         $("#smsVerificationCodeLoadArea").show().html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>Verifying...');
                     }
-                    if (triggeredBy == 3) $("#verifyEmailBtn").prop("disabled", true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>Sending...');
+                    if (triggeredBy == 3) $("#emailVoucherLabel").prop("disabled", true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>Sending...');
                     if (triggeredBy == 4) {
                         $("#emailVerificationCode").prop("disabled", true);
                         $("#emailVerificationCodeLoadArea").html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>Verifying...');
@@ -509,12 +506,12 @@ if (!isset($_SESSION["_purchaseToken"])) {
                     if (triggeredBy == 6) $("#submitBtn").prop("disabled", true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>Processing...');
                 },
                 ajaxStop: function() {
-                    if (triggeredBy == 1) $("#verifySMSBtn").prop("disabled", false).html('Send');
+                    if (triggeredBy == 1) $("#smsVoucherLabel").prop("disabled", false).html('SMS');
                     if (triggeredBy == 2) {
                         $("#smsVerificationCode").prop("disabled", false);
                         $("#smsVerificationCodeLoadArea").hide().html('');
                     }
-                    if (triggeredBy == 3) $("#verifyEmailBtn").prop("disabled", false).html('Send');
+                    if (triggeredBy == 3) $("#emailVoucherLabel").prop("disabled", false).html('Email');
                     if (triggeredBy == 4) {
                         $("#emailVerificationCode").prop("disabled", false);
                         $("#emailVerificationCodeLoadArea").hide().html('');
