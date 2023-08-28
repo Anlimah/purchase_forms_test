@@ -3,7 +3,7 @@
 
 <head>
     <?php require_once("inc/head-section.php"); ?>
-    <title>Form Purchase | Step 1</title>
+    <title>Form Purchase | Home</title>
 </head>
 
 <body class="fluid-container">
